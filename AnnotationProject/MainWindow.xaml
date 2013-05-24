@@ -1,0 +1,108 @@
+﻿<Window x:Class="AnnotationProject.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ad="http://avalondock.codeplex.com"        
+        Title="MainWindow" Height="550" Width="725">
+        <ad:DockingManager x:Name="dockManager">
+            <ad:LayoutRoot>
+                <ad:LayoutPanel Orientation="Horizontal">
+                <ad:LayoutAnchorablePaneGroup DockWidth="300" Orientation="Vertical">
+                    <ad:LayoutAnchorablePane DockWidth="100" DockHeight="150" >
+                        <ad:LayoutAnchorable x:Name="YourAnnotation" FloatingWidth="50" AutoHideMinWidth="50" AutoHideWidth="100" 
+                                             FloatingLeft="50" CanHide="False" 
+                                                    CanAutoHide="True" CanClose="False" CanFloat="True" Title="Your Annotation">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBox Name="inputText" TextWrapping="Wrap" AcceptsReturn="True" AcceptsTab="True"
+                                         DockPanel.Dock="Top" Grid.Row="0"></TextBox>
+                                <Button Width="100" Margin="10" Click="Save_Click" Grid.Row="1"
+                                        DockPanel.Dock="Bottom" Height="30">Save</Button>
+                            </Grid>
+                        </ad:LayoutAnchorable>
+                    </ad:LayoutAnchorablePane>
+                    <ad:LayoutAnchorablePane DockWidth="100">
+                        <ad:LayoutAnchorable x:Name="AllAnnotations" FloatingWidth="50" AutoHideMinWidth="50" AutoHideWidth="100" FloatingLeft="50" CanHide="False" 
+                                                    CanAutoHide="True" CanClose="False" CanFloat="True" Title="All Annotations" >
+                            
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="50"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox HorizontalAlignment="Stretch" 
+                                              AcceptsReturn="True" AcceptsTab="True" Width="Auto"
+                                             Margin="10,10,0,10"
+                                             Grid.Column="0"
+                                             ></TextBox>
+                                        <Button Margin="10" Width="80" Height="25" Grid.Column="1">Search</Button>
+                                </Grid>
+                                <ListBox Name="AvailableAnnotations" Grid.Row="1">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Vertical" Margin="5">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="100" />
+                                                <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding StartIndex}" Grid.Column="0"/>
+                                                <TextBlock Text="{Binding Length}" Grid.Column="1"/>
+                                            </Grid>
+                                                <TextBlock Text="{Binding Content}"></TextBlock>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </Grid>
+                        </ad:LayoutAnchorable>
+                    </ad:LayoutAnchorablePane>
+                </ad:LayoutAnchorablePaneGroup>
+                <ad:LayoutDocumentPaneGroup 
+                        DockWidth="500"
+                        >
+                    <ad:LayoutDocumentPane DockWidth="100" >
+                                           <!--AutoHideMinWidth="50" AutoHideWidth="100" 
+                                           CanHide="False" 
+                                                    CanAutoHide="True"--> 
+                        
+                        <ad:LayoutDocument x:Name="Text" 
+                                           FloatingWidth="50" 
+                                           FloatingLeft="50"
+                                           CanFloat="True" 
+                                           CanClose="False"
+                                           Title="Text" >
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="Start Index: " 
+                                           Grid.Row="0"
+                                           DataContext="{Binding Selection}" ><Run Text="{Binding CharIndex}"/><Run Text=" Length: "/><Run Text="{Binding CharLength}"/></TextBlock>
+                                <ScrollViewer Grid.Row="1">
+                                    <StackPanel>
+                                        <TextBox Name="body" 
+                                         SelectionChanged="body_SelectionChanged"
+                                           IsReadOnly="True"
+                                         AutoWordSelection="True"
+                                           ></TextBox>
+                                    </StackPanel>
+                                </ScrollViewer>
+                            </Grid>
+                        </ad:LayoutDocument>
+                    </ad:LayoutDocumentPane>
+                </ad:LayoutDocumentPaneGroup>
+            </ad:LayoutPanel>
+
+
+        </ad:LayoutRoot>
+        </ad:DockingManager>
+</Window>
