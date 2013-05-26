@@ -20,36 +20,50 @@ namespace AnnotationProject {
     public partial class MainWindow : Window, INotifyPropertyChanged {
         List<Annotation> annotations;
         public MainWindow() {
+            db = DataUtil.GetDataContext();
+            ///Todo: 
+            ///Add a library of fundamental texts
+            ///Filter annotations based on where you are in the text
+            ///Introduce inter-text linking and the notion of chapter, paragraph, etc.
             this.DataContext = this;
             this.Selection = new TextPosition();
             this.annotations = new List<Annotation>();
             InitializeComponent();
-            this.currentUser = new User() { Username = "Amichai" };
-            this.currentText = new Text() { User = currentUser.Username, Title = "Les Miserables", Source = @"C:\Users\Amichai\Dropbox\Share Folder\Literature\books\victor hugo\les miserable.txt", Content = null, ID = Guid.NewGuid() };
-            this.body.Text = string.Concat(System.IO.File.ReadAllText(this.currentText.Source).Take(100000));
-            this.Text.Title = this.currentText.Title;
-            db = DataUtil.GetDataContext();
+            
+            this.currentUser = new User() { Name = "Amichai" };
+            
+            string source = @"C:\Users\Amichai\Dropbox\Share Folder\Literature\books\victor hugo\les miserable.txt";
+            string text = string.Concat(System.IO.File.ReadAllText(source).Take(100000));
+            this.currentTextDetail = db.TextDetails.Where(i => i.Title == "Les Miserables").Single();
+            this.currentText = db.Texts.Where(i => i.ID == 1).Single();
+
+            this.body.Text = text;
+            this.Text.Title = this.currentTextDetail.Title;
             //clearAllTexts();
-            if (!db.Texts.Select(i => i.Title).Contains(currentText.Title)) {
+            if (!db.Texts.Select(i => i.TextDetail.Title).Contains(currentTextDetail.Title)) {
                 db.Texts.AddObject(this.currentText);
                 db.SaveChanges();
             }
             loadAnnotations();
-
         }
 
+        TextDetail currentTextDetail;
+
         private void loadAnnotations() {
-            foreach (var a in db.References) {
+            this.annotations.Clear();
+            foreach (var a in db.Annotations) {
                 this.annotations.Add(new Annotation() {
-                    StartIndex = a.SourceStartIndex.Value,
-                    Length = a.SourceLength.Value,
-                    Content = db.Texts.Single(i => i.ParentRef == a.ID).Content
+                    StartIndex = a.StartIndex.Value,
+                    SourceLength = a.SourceLength.Value,
+                    Content = a.Content,
+                    UpVotes = 12
                 });
             }
+            this.AvailableAnnotations.ItemsSource = null;
             this.AvailableAnnotations.ItemsSource = annotations;
         }
 
-        DataEntities db;
+        table1Entities db;
 
         private void clearAllTexts() {
             foreach (var t in db.Texts) {
@@ -64,19 +78,18 @@ namespace AnnotationProject {
             if (this.Selection.CharLength == 0) {
                 return;
             }
-            var db = DataUtil.GetDataContext();
-            Reference reference = new Reference() {
-                SourceStartIndex = this.Selection.CharIndex,
+            
+            Annotation annotation = new Annotation() {
+                StartIndex = this.Selection.CharIndex,
                 SourceLength = this.Selection.CharLength,
                 SourceText = currentText.ID,
-                ID = Guid.NewGuid(),
+                Content = inputText.Text
+
             };
-            Text newText = new Text() { User = this.currentUser.Username, Content = this.inputText.Text, ParentRef = reference.ID, ID = Guid.NewGuid() };
-            db.Texts.AddObject(newText);
-            db.SaveChanges();
-            db.References.AddObject(reference);
+            db.Annotations.AddObject(annotation);
             db.SaveChanges();
             this.inputText.Text = "";
+            loadAnnotations();
             ///Save a annotation to a DB
             ///Add anoter panel for visualizing all annotations
         }
@@ -105,6 +118,19 @@ namespace AnnotationProject {
             var tb = (sender as TextBox);
             this.Selection.CharIndex = tb.SelectionStart;
             this.Selection.CharLength = tb.SelectionLength;
+        }
+
+        private void body_LostFocus(object sender, RoutedEventArgs e) {
+            // This persists the selection
+            e.Handled = true;
+        }         
+
+        private void AvailableAnnotations_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+
+            var annotate = ((sender as ListBox).SelectedItem as Annotation);
+            var startIdx = annotate.StartIndex;
+            var length = annotate.SourceLength;
+            this.body.Select(startIdx.Value, length.Value);
         }
     }
 }

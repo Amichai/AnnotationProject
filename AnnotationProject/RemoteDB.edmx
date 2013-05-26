@@ -1,0 +1,258 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="2.0" xmlns:edmx="http://schemas.microsoft.com/ado/2008/10/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="table1Model.Store" Alias="Self" Provider="MySql.Data.MySqlClient" ProviderManifestToken="5.1" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/02/edm/ssdl">
+        <EntityContainer Name="table1ModelStoreContainer">
+          <EntitySet Name="Annotation" EntityType="table1Model.Store.Annotation" store:Type="Tables" Schema="table1" />
+          <EntitySet Name="Text" EntityType="table1Model.Store.Text" store:Type="Tables" Schema="table1" />
+          <EntitySet Name="TextDetails" EntityType="table1Model.Store.TextDetails" store:Type="Tables" Schema="table1" />
+          <EntitySet Name="User" EntityType="table1Model.Store.User" store:Type="Tables" Schema="table1" />
+          <AssociationSet Name="detail_pk" Association="table1Model.Store.detail_pk">
+            <End Role="TextDetails" EntitySet="TextDetails" />
+            <End Role="Text" EntitySet="Text" />
+          </AssociationSet>
+          <AssociationSet Name="SourceText" Association="table1Model.Store.SourceText">
+            <End Role="Text" EntitySet="Text" />
+            <End Role="Annotation" EntitySet="Annotation" />
+          </AssociationSet>
+        </EntityContainer>
+        <EntityType Name="Annotation">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="SourceText" Type="int" />
+          <Property Name="StartIndex" Type="int" />
+          <Property Name="SourceLength" Type="int" />
+          <Property Name="Author" Type="int" />
+          <Property Name="UpVotes" Type="int" />
+          <Property Name="DownVotes" Type="int" />
+          <Property Name="Content" Type="text" />
+        </EntityType>
+        <EntityType Name="Text">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Content" Type="text" />
+          <Property Name="Details" Type="int" />
+        </EntityType>
+        <EntityType Name="TextDetails">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Title" Type="varchar" MaxLength="150" />
+          <Property Name="Author" Type="varchar" MaxLength="150" />
+          <Property Name="Date" Type="datetime" />
+          <Property Name="Details" Type="text" />
+          <Property Name="TextSource" Type="varchar" MaxLength="200" />
+        </EntityType>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="varchar" MaxLength="150" />
+          <Property Name="CreationDate" Type="datetime" />
+        </EntityType>
+        <Association Name="detail_pk">
+          <End Role="TextDetails" Type="table1Model.Store.TextDetails" Multiplicity="0..1" />
+          <End Role="Text" Type="table1Model.Store.Text" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TextDetails">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Text">
+              <PropertyRef Name="Details" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="SourceText">
+          <End Role="Text" Type="table1Model.Store.Text" Multiplicity="0..1" />
+          <End Role="Annotation" Type="table1Model.Store.Annotation" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Text">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Annotation">
+              <PropertyRef Name="SourceText" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="table1Model" Alias="Self" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
+        <EntityContainer Name="table1Entities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Users" EntityType="table1Model.User" />
+          <EntitySet Name="TextDetails" EntityType="table1Model.TextDetail" />
+          <EntitySet Name="Texts" EntityType="table1Model.Text" />
+          <AssociationSet Name="detail_pk" Association="table1Model.detail_pk">
+            <End Role="TextDetail" EntitySet="TextDetails" />
+            <End Role="Text" EntitySet="Texts" />
+          </AssociationSet>
+          <EntitySet Name="Annotations" EntityType="table1Model.Annotation" />
+          <AssociationSet Name="SourceText" Association="table1Model.SourceText">
+            <End Role="Text" EntitySet="Texts" />
+            <End Role="Annotation" EntitySet="Annotations" />
+          </AssociationSet>
+        </EntityContainer>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="150" Unicode="false" FixedLength="false" />
+          <Property Name="CreationDate" Type="DateTime" />
+        </EntityType>
+        <EntityType Name="TextDetail">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Type="Int32" Name="ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="String" Name="Title" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="Author" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Type="DateTime" Name="Date" />
+          <Property Type="String" Name="Details" MaxLength="65535" FixedLength="false" Unicode="false" />
+          <Property Type="String" Name="TextSource" MaxLength="200" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Texts" Relationship="table1Model.detail_pk" FromRole="TextDetail" ToRole="Text" />
+        </EntityType>
+        <EntityType Name="Text">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Type="Int32" Name="ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="String" Name="Content" MaxLength="65535" FixedLength="false" Unicode="false" />
+          <Property Type="Int32" Name="Details" />
+          <NavigationProperty Name="TextDetail" Relationship="table1Model.detail_pk" FromRole="Text" ToRole="TextDetail" />
+          <NavigationProperty Name="Annotations" Relationship="table1Model.SourceText" FromRole="Text" ToRole="Annotation" />
+        </EntityType>
+        <Association Name="detail_pk">
+          <End Type="table1Model.TextDetail" Role="TextDetail" Multiplicity="0..1" />
+          <End Type="table1Model.Text" Role="Text" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TextDetail">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Text">
+              <PropertyRef Name="Details" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="Annotation">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Type="Int32" Name="ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="Int32" Name="SourceText" />
+          <Property Type="Int32" Name="StartIndex" />
+          <Property Type="Int32" Name="SourceLength" />
+          <Property Type="Int32" Name="Author" />
+          <Property Type="Int32" Name="UpVotes" />
+          <Property Type="Int32" Name="DownVotes" />
+          <Property Type="String" Name="Content" MaxLength="65535" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Text" Relationship="table1Model.SourceText" FromRole="Annotation" ToRole="Text" />
+        </EntityType>
+        <Association Name="SourceText">
+          <End Type="table1Model.Text" Role="Text" Multiplicity="0..1" />
+          <End Type="table1Model.Annotation" Role="Annotation" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Text">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Annotation">
+              <PropertyRef Name="SourceText" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2008/09/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="table1ModelStoreContainer" CdmEntityContainer="table1Entities">
+          <EntitySetMapping Name="Users">
+            <EntityTypeMapping TypeName="table1Model.User">
+              <MappingFragment StoreEntitySet="User">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="CreationDate" ColumnName="CreationDate" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TextDetails">
+            <EntityTypeMapping TypeName="table1Model.TextDetail">
+              <MappingFragment StoreEntitySet="TextDetails">
+                <ScalarProperty Name="TextSource" ColumnName="TextSource" />
+                <ScalarProperty Name="Details" ColumnName="Details" />
+                <ScalarProperty Name="Date" ColumnName="Date" />
+                <ScalarProperty Name="Author" ColumnName="Author" />
+                <ScalarProperty Name="Title" ColumnName="Title" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Texts">
+            <EntityTypeMapping TypeName="table1Model.Text">
+              <MappingFragment StoreEntitySet="Text">
+                <ScalarProperty Name="Details" ColumnName="Details" />
+                <ScalarProperty Name="Content" ColumnName="Content" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Annotations">
+            <EntityTypeMapping TypeName="table1Model.Annotation">
+              <MappingFragment StoreEntitySet="Annotation">
+                <ScalarProperty Name="Content" ColumnName="Content" />
+                <ScalarProperty Name="DownVotes" ColumnName="DownVotes" />
+                <ScalarProperty Name="UpVotes" ColumnName="UpVotes" />
+                <ScalarProperty Name="Author" ColumnName="Author" />
+                <ScalarProperty Name="SourceLength" ColumnName="SourceLength" />
+                <ScalarProperty Name="StartIndex" ColumnName="StartIndex" />
+                <ScalarProperty Name="SourceText" ColumnName="SourceText" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2008/10/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="True" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="True" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams>
+      <Diagram Name="RemoteDB">
+        <EntityTypeShape EntityType="table1Model.User" Width="1.5" PointX="3.5" PointY="4.5" Height="1.5956835937499996" IsExpanded="true" />
+        <EntityTypeShape EntityType="table1Model.TextDetail" Width="1.5" PointX="0.75" PointY="1.125" Height="2.3648893229166665" />
+        <EntityTypeShape EntityType="table1Model.Text" Width="1.5" PointX="3" PointY="1.375" Height="1.9802864583333317" />
+        <AssociationConnector Association="table1Model.detail_pk" >
+          <ConnectorPoint PointX="2.25" PointY="2.3651432291666667" />
+          <ConnectorPoint PointX="3" PointY="2.3651432291666667" />
+        </AssociationConnector>
+        <EntityTypeShape EntityType="table1Model.Annotation" Width="1.5" PointX="5.25" PointY="1" Height="2.7494921874999996" />
+        <AssociationConnector Association="table1Model.SourceText" >
+          <ConnectorPoint PointX="4.5" PointY="2.3651432291666667" />
+          <ConnectorPoint PointX="5.25" PointY="2.3651432291666667" />
+        </AssociationConnector>
+      </Diagram>
+    </Diagrams>
+  </Designer>
+</edmx:Edmx>
