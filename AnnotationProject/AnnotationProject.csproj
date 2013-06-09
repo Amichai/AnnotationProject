@@ -91,6 +91,7 @@
     <Compile Include="Annotation.cs" />
     <Compile Include="Converters\AnnotationToTagsConverter.cs" />
     <Compile Include="Converters\AuthorIDToNameConverter.cs" />
+    <Compile Include="Converters\StringToFlowDocumentConverter.cs" />
     <Compile Include="Converters\FlowDocumentToTextConverter.cs" />
     <Compile Include="DataUtil.cs" />
     <Compile Include="RemoteDB.Designer.cs">

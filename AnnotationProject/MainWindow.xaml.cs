@@ -63,9 +63,21 @@ namespace AnnotationProject {
             this.AvailableAnnotations.ItemsSource = db.Annotations.ToList();
         }
 
+        private bool same(List<Annotation> a, List<Annotation> b) {
+            if (a.Count != b.Count) {
+                return false;
+            }
+            for (int i = 0; i < b.Count; i++) {
+                if (a[i] != b[i]) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         private void loadAnnotations(List<Annotation> annotations) {
             ///Todo: this test is incorrect. We need to check that the lists are actually the same
-            if (this.AvailableAnnotations.Items.Count == annotations.Count()) {
+            if (same(annotations, this.AvailableAnnotations.ItemsSource.Cast<Annotation>().ToList())) {
                 return;
             }
             this.AvailableAnnotations.ItemsSource = null;
@@ -91,7 +103,9 @@ namespace AnnotationProject {
                 SourceLength = this.Selection.CharLength,
                 SourceText = currentText.ID,
                 Content = annotationAndTags.Annotation,
-                Author = currentUser.ID
+                Author = currentUser.ID,
+                UpVotes  =0,
+                 DownVotes =0
             };
             db.Annotations.AddObject(annotation);
             db.SaveChanges();
@@ -128,6 +142,7 @@ namespace AnnotationProject {
 
         private void Save_Click(object sender, RoutedEventArgs e) {
             if (this.Selection.CharLength == 0) {
+                ///TODO: notify the user why this failed
                 return;
             }
 
@@ -212,6 +227,7 @@ namespace AnnotationProject {
             var start = this.body.Document.ContentStart;
 
             this.body.Selection.Select(start.GetPositionAtOffset(startIdx, LogicalDirection.Forward), start.GetPositionAtOffset(startIdx + length, LogicalDirection.Forward));
+            this.selectedAnnotationRoot.DataContext = selectedAnnotation;
             this.annotationText.Document = selectedAnnotation.Content.LoadFlowDocument();
             
         }
@@ -221,6 +237,34 @@ namespace AnnotationProject {
             db.AnnotationTags.ToList().ForEach(i => db.DeleteObject(i));
             db.SaveChanges();
             loadAnnotations();
+        }
+
+        private void Filter_Click(object sender, RoutedEventArgs e) {
+            this.ShowAll = false;
+            var search = this.searchTerms.Text.Split(new char[] { ' '}, StringSplitOptions.RemoveEmptyEntries).ToList();
+            var tags = search.Where(i => i.First() == '[' && i.Last() == ']').ToList();
+            List<Annotation> annotations;
+            if (tags.Count() > 0) {
+                foreach (var t in tags) {
+                    search.Remove(t);
+                }
+                tags = tags.Select(i => i.Substring(1, i.Count() - 2)).ToList();
+
+                var ids = db.Tags.Where(t => tags.Contains(t.Name)).Select(i => i.ID);
+
+                var matchedTags = db.AnnotationTags.Where(i => ids.Any(j => i.TagID == j)).ToList();
+
+                ///Filter annotations on content that contains all the search terms
+                annotations = matchedTags.Select(i => i.Annotation).Distinct().Where(i =>
+                    search.All(j => i.Content.Contains(j))
+                    ).ToList();
+            } else {
+
+                annotations = db.Annotations.Where(i =>
+                    search.All(j => i.Content.Contains(j))
+                    ).ToList();
+            }
+            loadAnnotations(annotations);
         }
     }
 }

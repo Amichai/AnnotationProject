@@ -32,13 +32,13 @@
                                          DockPanel.Dock="Top" Grid.Row="1"></RichTextBox>
                                 <Border Grid.Row="2" Margin="5" BorderBrush="Black" BorderThickness="1">
                                     <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Label Grid.Column="0">Tags:</Label>
-                                    <TextBox Name="tags" Grid.Column="1"></TextBox>
-                                </Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Label Grid.Column="0">Tags:</Label>
+                                        <TextBox Name="tags" Grid.Column="1"></TextBox>
+                                    </Grid>
                                 </Border>
                                 <Button Width="100" Margin="5" Click="Save_Click" Grid.Row="3"
                                         Height="30">Save</Button>
@@ -62,11 +62,12 @@
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
                                     <TextBox HorizontalAlignment="Stretch" 
+                                             Name="searchTerms"
                                               AcceptsReturn="True" AcceptsTab="True" Width="Auto"
                                              Margin="10,10,0,10"
                                              Grid.Column="0"                                             
                                              ></TextBox>
-                                    <Button Margin="10" Width="80" Height="25" Grid.Column="1">Search</Button>
+                                    <Button Margin="10" Width="80" Height="25" Grid.Column="1" Click="Filter_Click">Filter</Button>
                                 </Grid>
                                 <StackPanel Orientation="Horizontal" Grid.Row="1" >
                                     <CheckBox Margin="5" IsChecked="{Binding ShowAll}">Show All</CheckBox>
@@ -80,30 +81,10 @@
                                                     <TextBlock Text="{Binding SourceLength}" Grid.Column="1"/>
                                                 </StackPanel>
                                                 <TextBlock Text="{Binding Content, Converter={StaticResource FlowDocumentToTextConverter}}" Height="20" TextWrapping="NoWrap"></TextBlock>
-                                                <!--Vote Arrows:-->
-                                                <!--<StackPanel Orientation="Horizontal">
-                                                    <Grid Height="20" Width="10">
-                                                        <Grid.RowDefinitions>
-                                                            <RowDefinition Height="10" />
-                                                            <RowDefinition Height="10" />
-                                                        </Grid.RowDefinitions>
-                                                        <Line Grid.Row="0" Y1="0" Y2="10" X1="0" X2="0" Stroke="Black" StrokeThickness="1" HorizontalAlignment="Center" />
-                                                        <Path Grid.Row="1" Data="M0,0 L5,10 L10,0Z" Stroke="Black" Fill="Black" StrokeThickness="1" HorizontalAlignment="Center" />
-                                                    </Grid>
-                                                    <Grid Height="20" Width="10" Margin="10,0,0,0">
-                                                        <Grid.RowDefinitions>
-                                                            <RowDefinition Height="10" />
-                                                            <RowDefinition Height="10" />
-                                                        </Grid.RowDefinitions>
-                                                        <Line Grid.Row="1" Y1="0" Y2="10" X1="0" X2="0" Stroke="Black" StrokeThickness="1" HorizontalAlignment="Center" />
-                                                        <Path Grid.Row="0" Data="M0,10 L5,0 L10,10Z" Stroke="Black" Fill="Black" StrokeThickness="1" HorizontalAlignment="Center" />
-                                                    </Grid>
-                                                    <TextBlock Margin="10,0,0,0" Text="Votes: "><Run Text="{Binding UpVotes}"/></TextBlock>
-                                                </StackPanel>-->
                                                 <Grid>
                                                     <TextBlock Text="{Binding Author, Converter={StaticResource AuthorIDToNameConverter}}" HorizontalAlignment="Left"/>
-                                                <Border CornerRadius="3" HorizontalAlignment="Right">
-                                                <TextBlock Background="LightYellow" >
+                                                    <Border CornerRadius="3" HorizontalAlignment="Right">
+                                                        <TextBlock Background="LightYellow" >
                                                     <TextBlock.Text>
                                                         <Binding>
                                                             <Binding.Converter>
@@ -111,8 +92,8 @@
                                                             </Binding.Converter>
                                                         </Binding>
                                                     </TextBlock.Text>
-                                                </TextBlock>
-                                                </Border>
+                                                        </TextBlock>
+                                                    </Border>
                                                 </Grid>
                                             </StackPanel>
                                         </DataTemplate>
@@ -125,14 +106,36 @@
                         <ad:LayoutAnchorable x:Name="SelectedAnnotation" FloatingWidth="50" AutoHideMinWidth="50" AutoHideWidth="100" 
                                              FloatingLeft="50" CanHide="False" 
                                                     CanAutoHide="True" CanClose="False" CanFloat="True" Title="Selected Annotation">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <RichTextBox Name="annotationText" AcceptsReturn="True" AcceptsTab="True"
-                                         DockPanel.Dock="Top" Grid.Row="1" IsReadOnly="True"></RichTextBox>
+                            <Grid Name="selectedAnnotationRoot">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <!--Vote Arrows:-->
+                                    <Grid Height="20" Width="10" Margin="0,0,0,0">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="10" />
+                                            <RowDefinition Height="10" />
+                                        </Grid.RowDefinitions>
+                                        <Path Grid.Row="0" Data="M0,10 L5,0 L10,10Z" Stroke="Black" Fill="Black" StrokeThickness="1" HorizontalAlignment="Center" />
+                                    </Grid>
+                                    <TextBlock Margin="0,0,0,0"><Run Text="{Binding UpVotes}"/></TextBlock>
+                                    <TextBlock Margin="0,0,0,0"><Run Text="{Binding DownVotes}"/></TextBlock>
+                                    <Grid Height="20" Width="10">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="10" />
+                                            <RowDefinition Height="10" />
+                                        </Grid.RowDefinitions>
+                                        <Path Grid.Row="1" Data="M0,0 L5,10 L10,0Z" Stroke="Black" Fill="Black" StrokeThickness="1" HorizontalAlignment="Center" />
+                                    </Grid>
+                                    
+                                </StackPanel>
+                                <RichTextBox Name="annotationText" AcceptsReturn="True" AcceptsTab="True" Grid.Column="1"
+                                         DockPanel.Dock="Top" Grid.Row="1" IsReadOnly="True">
+
+
+                                </RichTextBox>
                             </Grid>
                         </ad:LayoutAnchorable>
                     </ad:LayoutAnchorablePane>
