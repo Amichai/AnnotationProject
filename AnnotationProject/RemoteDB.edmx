@@ -7,9 +7,15 @@
     <Schema Namespace="table1Model.Store" Alias="Self" Provider="MySql.Data.MySqlClient" ProviderManifestToken="5.1" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/02/edm/ssdl">
         <EntityContainer Name="table1ModelStoreContainer">
           <EntitySet Name="Annotation" EntityType="table1Model.Store.Annotation" store:Type="Tables" Schema="table1" />
+          <EntitySet Name="AnnotationTags" EntityType="table1Model.Store.AnnotationTags" store:Type="Tables" Schema="table1" />
+          <EntitySet Name="Tag" EntityType="table1Model.Store.Tag" store:Type="Tables" Schema="table1" />
           <EntitySet Name="Text" EntityType="table1Model.Store.Text" store:Type="Tables" Schema="table1" />
           <EntitySet Name="TextDetails" EntityType="table1Model.Store.TextDetails" store:Type="Tables" Schema="table1" />
           <EntitySet Name="User" EntityType="table1Model.Store.User" store:Type="Tables" Schema="table1" />
+          <AssociationSet Name="AnnotationID" Association="table1Model.Store.AnnotationID">
+            <End Role="Annotation" EntitySet="Annotation" />
+            <End Role="AnnotationTags" EntitySet="AnnotationTags" />
+          </AssociationSet>
           <AssociationSet Name="detail_pk" Association="table1Model.Store.detail_pk">
             <End Role="TextDetails" EntitySet="TextDetails" />
             <End Role="Text" EntitySet="Text" />
@@ -17,6 +23,10 @@
           <AssociationSet Name="SourceText" Association="table1Model.Store.SourceText">
             <End Role="Text" EntitySet="Text" />
             <End Role="Annotation" EntitySet="Annotation" />
+          </AssociationSet>
+          <AssociationSet Name="TagID" Association="table1Model.Store.TagID">
+            <End Role="Tag" EntitySet="Tag" />
+            <End Role="AnnotationTags" EntitySet="AnnotationTags" />
           </AssociationSet>
         </EntityContainer>
         <EntityType Name="Annotation">
@@ -31,6 +41,21 @@
           <Property Name="UpVotes" Type="int" />
           <Property Name="DownVotes" Type="int" />
           <Property Name="Content" Type="text" />
+        </EntityType>
+        <EntityType Name="AnnotationTags">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="TagID" Type="int" />
+          <Property Name="AnnotationID" Type="int" />
+        </EntityType>
+        <EntityType Name="Tag">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="varchar" MaxLength="45" />
         </EntityType>
         <EntityType Name="Text">
           <Key>
@@ -59,6 +84,18 @@
           <Property Name="Name" Type="varchar" MaxLength="150" />
           <Property Name="CreationDate" Type="datetime" />
         </EntityType>
+        <Association Name="AnnotationID">
+          <End Role="Annotation" Type="table1Model.Store.Annotation" Multiplicity="0..1" />
+          <End Role="AnnotationTags" Type="table1Model.Store.AnnotationTags" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Annotation">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="AnnotationTags">
+              <PropertyRef Name="AnnotationID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="detail_pk">
           <End Role="TextDetails" Type="table1Model.Store.TextDetails" Multiplicity="0..1" />
           <End Role="Text" Type="table1Model.Store.Text" Multiplicity="*" />
@@ -83,31 +120,88 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="TagID">
+          <End Role="Tag" Type="table1Model.Store.Tag" Multiplicity="0..1" />
+          <End Role="AnnotationTags" Type="table1Model.Store.AnnotationTags" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Tag">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="AnnotationTags">
+              <PropertyRef Name="TagID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
       </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="table1Model" Alias="Self" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
         <EntityContainer Name="table1Entities" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="Users" EntityType="table1Model.User" />
-          <EntitySet Name="TextDetails" EntityType="table1Model.TextDetail" />
-          <EntitySet Name="Texts" EntityType="table1Model.Text" />
-          <AssociationSet Name="detail_pk" Association="table1Model.detail_pk">
-            <End Role="TextDetail" EntitySet="TextDetails" />
-            <End Role="Text" EntitySet="Texts" />
-          </AssociationSet>
           <EntitySet Name="Annotations" EntityType="table1Model.Annotation" />
+          <EntitySet Name="AnnotationTags" EntityType="table1Model.AnnotationTag" />
+          <EntitySet Name="Tags" EntityType="table1Model.Tag" />
+          <EntitySet Name="Texts" EntityType="table1Model.Text" />
+          <EntitySet Name="TextDetails" EntityType="table1Model.TextDetail" />
+          <EntitySet Name="Users" EntityType="table1Model.User" />
+          <AssociationSet Name="AnnotationID" Association="table1Model.AnnotationID">
+            <End Role="Annotation" EntitySet="Annotations" />
+            <End Role="AnnotationTag" EntitySet="AnnotationTags" />
+          </AssociationSet>
           <AssociationSet Name="SourceText" Association="table1Model.SourceText">
             <End Role="Text" EntitySet="Texts" />
             <End Role="Annotation" EntitySet="Annotations" />
           </AssociationSet>
+          <AssociationSet Name="TagID" Association="table1Model.TagID">
+            <End Role="Tag" EntitySet="Tags" />
+            <End Role="AnnotationTag" EntitySet="AnnotationTags" />
+          </AssociationSet>
+          <AssociationSet Name="detail_pk" Association="table1Model.detail_pk">
+            <End Role="TextDetail" EntitySet="TextDetails" />
+            <End Role="Text" EntitySet="Texts" />
+          </AssociationSet>
         </EntityContainer>
-        <EntityType Name="User">
+        <EntityType Name="Annotation">
           <Key>
             <PropertyRef Name="ID" />
           </Key>
-          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Name" Type="String" MaxLength="150" Unicode="false" FixedLength="false" />
-          <Property Name="CreationDate" Type="DateTime" />
+          <Property Type="Int32" Name="ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="Int32" Name="SourceText" />
+          <Property Type="Int32" Name="StartIndex" />
+          <Property Type="Int32" Name="SourceLength" />
+          <Property Type="Int32" Name="Author" />
+          <Property Type="Int32" Name="UpVotes" />
+          <Property Type="Int32" Name="DownVotes" />
+          <Property Type="String" Name="Content" MaxLength="65535" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="AnnotationTags" Relationship="table1Model.AnnotationID" FromRole="Annotation" ToRole="AnnotationTag" />
+          <NavigationProperty Name="Text" Relationship="table1Model.SourceText" FromRole="Annotation" ToRole="Text" />
+        </EntityType>
+        <EntityType Name="AnnotationTag">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Type="Int32" Name="ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="Int32" Name="TagID" />
+          <Property Type="Int32" Name="AnnotationID" />
+          <NavigationProperty Name="Annotation" Relationship="table1Model.AnnotationID" FromRole="AnnotationTag" ToRole="Annotation" />
+          <NavigationProperty Name="Tag" Relationship="table1Model.TagID" FromRole="AnnotationTag" ToRole="Tag" />
+        </EntityType>
+        <EntityType Name="Tag">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Type="Int32" Name="ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="String" Name="Name" MaxLength="45" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="AnnotationTags" Relationship="table1Model.TagID" FromRole="Tag" ToRole="AnnotationTag" />
+        </EntityType>
+        <EntityType Name="Text">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Type="Int32" Name="ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Type="String" Name="Content" MaxLength="65535" FixedLength="false" Unicode="false" />
+          <Property Type="Int32" Name="Details" />
+          <NavigationProperty Name="Annotations" Relationship="table1Model.SourceText" FromRole="Text" ToRole="Annotation" />
+          <NavigationProperty Name="TextDetail" Relationship="table1Model.detail_pk" FromRole="Text" ToRole="TextDetail" />
         </EntityType>
         <EntityType Name="TextDetail">
           <Key>
@@ -121,42 +215,26 @@
           <Property Type="String" Name="TextSource" MaxLength="200" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="Texts" Relationship="table1Model.detail_pk" FromRole="TextDetail" ToRole="Text" />
         </EntityType>
-        <EntityType Name="Text">
+        <EntityType Name="User">
           <Key>
             <PropertyRef Name="ID" />
           </Key>
           <Property Type="Int32" Name="ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Type="String" Name="Content" MaxLength="65535" FixedLength="false" Unicode="false" />
-          <Property Type="Int32" Name="Details" />
-          <NavigationProperty Name="TextDetail" Relationship="table1Model.detail_pk" FromRole="Text" ToRole="TextDetail" />
-          <NavigationProperty Name="Annotations" Relationship="table1Model.SourceText" FromRole="Text" ToRole="Annotation" />
+          <Property Type="String" Name="Name" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Type="DateTime" Name="CreationDate" />
         </EntityType>
-        <Association Name="detail_pk">
-          <End Type="table1Model.TextDetail" Role="TextDetail" Multiplicity="0..1" />
-          <End Type="table1Model.Text" Role="Text" Multiplicity="*" />
+        <Association Name="AnnotationID">
+          <End Type="table1Model.Annotation" Role="Annotation" Multiplicity="0..1" />
+          <End Type="table1Model.AnnotationTag" Role="AnnotationTag" Multiplicity="*" />
           <ReferentialConstraint>
-            <Principal Role="TextDetail">
+            <Principal Role="Annotation">
               <PropertyRef Name="ID" />
             </Principal>
-            <Dependent Role="Text">
-              <PropertyRef Name="Details" />
+            <Dependent Role="AnnotationTag">
+              <PropertyRef Name="AnnotationID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityType Name="Annotation">
-          <Key>
-            <PropertyRef Name="ID" />
-          </Key>
-          <Property Type="Int32" Name="ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Type="Int32" Name="SourceText" />
-          <Property Type="Int32" Name="StartIndex" />
-          <Property Type="Int32" Name="SourceLength" />
-          <Property Type="Int32" Name="Author" />
-          <Property Type="Int32" Name="UpVotes" />
-          <Property Type="Int32" Name="DownVotes" />
-          <Property Type="String" Name="Content" MaxLength="65535" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="Text" Relationship="table1Model.SourceText" FromRole="Annotation" ToRole="Text" />
-        </EntityType>
         <Association Name="SourceText">
           <End Type="table1Model.Text" Role="Text" Multiplicity="0..1" />
           <End Type="table1Model.Annotation" Role="Annotation" Multiplicity="*" />
@@ -169,18 +247,73 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-      </Schema>
+        <Association Name="TagID">
+          <End Type="table1Model.Tag" Role="Tag" Multiplicity="0..1" />
+          <End Type="table1Model.AnnotationTag" Role="AnnotationTag" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Tag">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="AnnotationTag">
+              <PropertyRef Name="TagID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="detail_pk">
+          <End Type="table1Model.TextDetail" Role="TextDetail" Multiplicity="0..1" />
+          <End Type="table1Model.Text" Role="Text" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TextDetail">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Text">
+              <PropertyRef Name="Details" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2008/09/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="table1ModelStoreContainer" CdmEntityContainer="table1Entities">
-          <EntitySetMapping Name="Users">
-            <EntityTypeMapping TypeName="table1Model.User">
-              <MappingFragment StoreEntitySet="User">
+          <EntitySetMapping Name="Annotations">
+            <EntityTypeMapping TypeName="table1Model.Annotation">
+              <MappingFragment StoreEntitySet="Annotation">
+                <ScalarProperty Name="Content" ColumnName="Content" />
+                <ScalarProperty Name="DownVotes" ColumnName="DownVotes" />
+                <ScalarProperty Name="UpVotes" ColumnName="UpVotes" />
+                <ScalarProperty Name="Author" ColumnName="Author" />
+                <ScalarProperty Name="SourceLength" ColumnName="SourceLength" />
+                <ScalarProperty Name="StartIndex" ColumnName="StartIndex" />
+                <ScalarProperty Name="SourceText" ColumnName="SourceText" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="AnnotationTags">
+            <EntityTypeMapping TypeName="table1Model.AnnotationTag">
+              <MappingFragment StoreEntitySet="AnnotationTags">
+                <ScalarProperty Name="AnnotationID" ColumnName="AnnotationID" />
+                <ScalarProperty Name="TagID" ColumnName="TagID" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Tags">
+            <EntityTypeMapping TypeName="table1Model.Tag">
+              <MappingFragment StoreEntitySet="Tag">
                 <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="CreationDate" ColumnName="CreationDate" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Texts">
+            <EntityTypeMapping TypeName="table1Model.Text">
+              <MappingFragment StoreEntitySet="Text">
+                <ScalarProperty Name="Details" ColumnName="Details" />
+                <ScalarProperty Name="Content" ColumnName="Content" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -196,25 +329,11 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Texts">
-            <EntityTypeMapping TypeName="table1Model.Text">
-              <MappingFragment StoreEntitySet="Text">
-                <ScalarProperty Name="Details" ColumnName="Details" />
-                <ScalarProperty Name="Content" ColumnName="Content" />
-                <ScalarProperty Name="ID" ColumnName="ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Annotations">
-            <EntityTypeMapping TypeName="table1Model.Annotation">
-              <MappingFragment StoreEntitySet="Annotation">
-                <ScalarProperty Name="Content" ColumnName="Content" />
-                <ScalarProperty Name="DownVotes" ColumnName="DownVotes" />
-                <ScalarProperty Name="UpVotes" ColumnName="UpVotes" />
-                <ScalarProperty Name="Author" ColumnName="Author" />
-                <ScalarProperty Name="SourceLength" ColumnName="SourceLength" />
-                <ScalarProperty Name="StartIndex" ColumnName="StartIndex" />
-                <ScalarProperty Name="SourceText" ColumnName="SourceText" />
+          <EntitySetMapping Name="Users">
+            <EntityTypeMapping TypeName="table1Model.User">
+              <MappingFragment StoreEntitySet="User">
+                <ScalarProperty Name="CreationDate" ColumnName="CreationDate" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>
@@ -240,17 +359,28 @@
     <!-- Diagram content (shape and connector positions) -->
     <Diagrams>
       <Diagram Name="RemoteDB">
-        <EntityTypeShape EntityType="table1Model.User" Width="1.5" PointX="3.5" PointY="4.5" Height="1.5956835937499996" IsExpanded="true" />
-        <EntityTypeShape EntityType="table1Model.TextDetail" Width="1.5" PointX="0.75" PointY="1.125" Height="2.3648893229166665" />
-        <EntityTypeShape EntityType="table1Model.Text" Width="1.5" PointX="3" PointY="1.375" Height="1.9802864583333317" />
-        <AssociationConnector Association="table1Model.detail_pk" >
-          <ConnectorPoint PointX="2.25" PointY="2.3651432291666667" />
-          <ConnectorPoint PointX="3" PointY="2.3651432291666667" />
+        <EntityTypeShape EntityType="table1Model.Annotation" Width="1.5" PointX="5.25" PointY="1" Height="2.9417936197916674" />
+        <EntityTypeShape EntityType="table1Model.AnnotationTag" Width="1.5" PointX="7.5" PointY="1.5" Height="1.9802864583333388" />
+        <EntityTypeShape EntityType="table1Model.Tag" Width="1.5" PointX="5.25" PointY="5.625" Height="1.5956835937500031" />
+        <EntityTypeShape EntityType="table1Model.Text" Width="1.5" PointX="3" PointY="1.5" Height="1.9802864583333388" />
+        <EntityTypeShape EntityType="table1Model.TextDetail" Width="1.5" PointX="0.75" PointY="1.25" Height="2.3648893229166674" />
+        <EntityTypeShape EntityType="table1Model.User" Width="1.5" PointX="0.75" PointY="4.75" Height="1.5956835937500102" />
+        <AssociationConnector Association="table1Model.AnnotationID" >
+          <ConnectorPoint PointX="6.75" PointY="2.4901432291666694" />
+          <ConnectorPoint PointX="7.5" PointY="2.4901432291666694" />
         </AssociationConnector>
-        <EntityTypeShape EntityType="table1Model.Annotation" Width="1.5" PointX="5.25" PointY="1" Height="2.7494921874999996" />
         <AssociationConnector Association="table1Model.SourceText" >
-          <ConnectorPoint PointX="4.5" PointY="2.3651432291666667" />
-          <ConnectorPoint PointX="5.25" PointY="2.3651432291666667" />
+          <ConnectorPoint PointX="4.5" PointY="2.4901432291666694" />
+          <ConnectorPoint PointX="5.25" PointY="2.4901432291666694" />
+        </AssociationConnector>
+        <AssociationConnector Association="table1Model.TagID" >
+          <ConnectorPoint PointX="6.75" PointY="6.4228417968750016" />
+          <ConnectorPoint PointX="8.25" PointY="6.4228417968750016" />
+          <ConnectorPoint PointX="8.25" PointY="3.4802864583333388" />
+        </AssociationConnector>
+        <AssociationConnector Association="table1Model.detail_pk" >
+          <ConnectorPoint PointX="2.25" PointY="2.4901432291666694" />
+          <ConnectorPoint PointX="3" PointY="2.4901432291666694" />
         </AssociationConnector>
       </Diagram>
     </Diagrams>

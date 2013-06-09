@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
+using System.Windows.Documents;
 
 namespace AnnotationProject {
     public class TextPosition : INotifyPropertyChanged{
-
         private int _charIndex;
         public int CharIndex {
             get {
@@ -19,8 +19,21 @@ namespace AnnotationProject {
         }
         private int _CharLength;
 
+        private int _lineNumber;
+
+        public int LineNumber {
+            get { return _lineNumber; }
+            set { 
+                _lineNumber = value;
+                OnPropertyChanged("LineNumber");
+            }
+        }
+        
+
         public int CharLength {
-            get { return _CharLength; }
+            get {
+                return _CharLength;
+            }
             set {
                 _CharLength = value;
                 OnPropertyChanged("CharLength");

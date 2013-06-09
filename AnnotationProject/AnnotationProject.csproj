@@ -89,6 +89,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Annotation.cs" />
+    <Compile Include="Converters\AnnotationToTagsConverter.cs" />
+    <Compile Include="Converters\AuthorIDToNameConverter.cs" />
+    <Compile Include="Converters\FlowDocumentToTextConverter.cs" />
     <Compile Include="DataUtil.cs" />
     <Compile Include="RemoteDB.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -96,6 +99,7 @@
       <DependentUpon>RemoteDB.edmx</DependentUpon>
     </Compile>
     <Compile Include="TextPosition.cs" />
+    <Compile Include="Util.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -165,6 +169,12 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RichTextBoxToolBar\RichTextBoxToolBar.csproj">
+      <Project>{356B108D-E06B-4F21-9422-E89CF740E61F}</Project>
+      <Name>RichTextBoxToolBar</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -2,3 +2,7 @@ AnnotationProject.suo
 AnnotationProject/bin/
 AnnotationProject/obj/
 packages/
+DBUtil/bin/Debug/
+DBUtil/obj/
+RichTextBoxToolBar/bin/
+RichTextBoxToolBar/obj/
