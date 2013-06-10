@@ -20,9 +20,11 @@ using System.Xml.Serialization;
 #region EDM Relationship Metadata
 
 [assembly: EdmRelationshipAttribute("table1Model", "AnnotationID", "Annotation", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(AnnotationProject.Annotation), "AnnotationTag", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(AnnotationProject.AnnotationTag), true)]
+[assembly: EdmRelationshipAttribute("table1Model", "AnnotationID_FK", "Annotation", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(AnnotationProject.Annotation), "UserVote", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(AnnotationProject.UserVote), true)]
 [assembly: EdmRelationshipAttribute("table1Model", "SourceText", "Text", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(AnnotationProject.Text), "Annotation", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(AnnotationProject.Annotation), true)]
 [assembly: EdmRelationshipAttribute("table1Model", "TagID", "Tag", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(AnnotationProject.Tag), "AnnotationTag", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(AnnotationProject.AnnotationTag), true)]
 [assembly: EdmRelationshipAttribute("table1Model", "detail_pk", "TextDetail", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(AnnotationProject.TextDetail), "Text", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(AnnotationProject.Text), true)]
+[assembly: EdmRelationshipAttribute("table1Model", "UserID_FK", "User", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(AnnotationProject.User), "UserVote", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(AnnotationProject.UserVote), true)]
 
 #endregion
 
@@ -169,6 +171,22 @@ namespace AnnotationProject
             }
         }
         private ObjectSet<User> _Users;
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        public ObjectSet<UserVote> UserVotes
+        {
+            get
+            {
+                if ((_UserVotes == null))
+                {
+                    _UserVotes = base.CreateObjectSet<UserVote>("UserVotes");
+                }
+                return _UserVotes;
+            }
+        }
+        private ObjectSet<UserVote> _UserVotes;
 
         #endregion
 
@@ -221,6 +239,14 @@ namespace AnnotationProject
         {
             base.AddObject("Users", user);
         }
+    
+        /// <summary>
+        /// Deprecated Method for adding a new object to the UserVotes EntitySet. Consider using the .Add method of the associated ObjectSet&lt;T&gt; property instead.
+        /// </summary>
+        public void AddToUserVotes(UserVote userVote)
+        {
+            base.AddObject("UserVotes", userVote);
+        }
 
         #endregion
 
@@ -244,10 +270,14 @@ namespace AnnotationProject
         /// Create a new Annotation object.
         /// </summary>
         /// <param name="id">Initial value of the ID property.</param>
-        public static Annotation CreateAnnotation(global::System.Int32 id)
+        /// <param name="upVotes">Initial value of the UpVotes property.</param>
+        /// <param name="downVotes">Initial value of the DownVotes property.</param>
+        public static Annotation CreateAnnotation(global::System.Int32 id, global::System.Int32 upVotes, global::System.Int32 downVotes)
         {
             Annotation annotation = new Annotation();
             annotation.ID = id;
+            annotation.UpVotes = upVotes;
+            annotation.DownVotes = downVotes;
             return annotation;
         }
 
@@ -381,9 +411,9 @@ namespace AnnotationProject
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
         [DataMemberAttribute()]
-        public Nullable<global::System.Int32> UpVotes
+        public global::System.Int32 UpVotes
         {
             get
             {
@@ -398,16 +428,16 @@ namespace AnnotationProject
                 OnUpVotesChanged();
             }
         }
-        private Nullable<global::System.Int32> _UpVotes;
-        partial void OnUpVotesChanging(Nullable<global::System.Int32> value);
+        private global::System.Int32 _UpVotes;
+        partial void OnUpVotesChanging(global::System.Int32 value);
         partial void OnUpVotesChanged();
     
         /// <summary>
         /// No Metadata Documentation available.
         /// </summary>
-        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=false)]
         [DataMemberAttribute()]
-        public Nullable<global::System.Int32> DownVotes
+        public global::System.Int32 DownVotes
         {
             get
             {
@@ -422,8 +452,8 @@ namespace AnnotationProject
                 OnDownVotesChanged();
             }
         }
-        private Nullable<global::System.Int32> _DownVotes;
-        partial void OnDownVotesChanging(Nullable<global::System.Int32> value);
+        private global::System.Int32 _DownVotes;
+        partial void OnDownVotesChanging(global::System.Int32 value);
         partial void OnDownVotesChanged();
     
         /// <summary>
@@ -473,6 +503,28 @@ namespace AnnotationProject
                 if ((value != null))
                 {
                     ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<AnnotationTag>("table1Model.AnnotationID", "AnnotationTag", value);
+                }
+            }
+        }
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [XmlIgnoreAttribute()]
+        [SoapIgnoreAttribute()]
+        [DataMemberAttribute()]
+        [EdmRelationshipNavigationPropertyAttribute("table1Model", "AnnotationID_FK", "UserVote")]
+        public EntityCollection<UserVote> UserVotes
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<UserVote>("table1Model.AnnotationID_FK", "UserVote");
+            }
+            set
+            {
+                if ((value != null))
+                {
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<UserVote>("table1Model.AnnotationID_FK", "UserVote", value);
                 }
             }
         }
@@ -1286,6 +1338,241 @@ namespace AnnotationProject
         #endregion
 
     
+        #region Navigation Properties
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [XmlIgnoreAttribute()]
+        [SoapIgnoreAttribute()]
+        [DataMemberAttribute()]
+        [EdmRelationshipNavigationPropertyAttribute("table1Model", "UserID_FK", "UserVote")]
+        public EntityCollection<UserVote> UserVotes
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<UserVote>("table1Model.UserID_FK", "UserVote");
+            }
+            set
+            {
+                if ((value != null))
+                {
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<UserVote>("table1Model.UserID_FK", "UserVote", value);
+                }
+            }
+        }
+
+        #endregion
+
+    }
+    
+    /// <summary>
+    /// No Metadata Documentation available.
+    /// </summary>
+    [EdmEntityTypeAttribute(NamespaceName="table1Model", Name="UserVote")]
+    [Serializable()]
+    [DataContractAttribute(IsReference=true)]
+    public partial class UserVote : EntityObject
+    {
+        #region Factory Method
+    
+        /// <summary>
+        /// Create a new UserVote object.
+        /// </summary>
+        /// <param name="id">Initial value of the ID property.</param>
+        public static UserVote CreateUserVote(global::System.Int32 id)
+        {
+            UserVote userVote = new UserVote();
+            userVote.ID = id;
+            return userVote;
+        }
+
+        #endregion
+
+        #region Primitive Properties
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=true, IsNullable=false)]
+        [DataMemberAttribute()]
+        public global::System.Int32 ID
+        {
+            get
+            {
+                return _ID;
+            }
+            set
+            {
+                if (_ID != value)
+                {
+                    OnIDChanging(value);
+                    ReportPropertyChanging("ID");
+                    _ID = StructuralObject.SetValidValue(value);
+                    ReportPropertyChanged("ID");
+                    OnIDChanged();
+                }
+            }
+        }
+        private global::System.Int32 _ID;
+        partial void OnIDChanging(global::System.Int32 value);
+        partial void OnIDChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
+        [DataMemberAttribute()]
+        public Nullable<global::System.Int32> UserID
+        {
+            get
+            {
+                return _UserID;
+            }
+            set
+            {
+                OnUserIDChanging(value);
+                ReportPropertyChanging("UserID");
+                _UserID = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("UserID");
+                OnUserIDChanged();
+            }
+        }
+        private Nullable<global::System.Int32> _UserID;
+        partial void OnUserIDChanging(Nullable<global::System.Int32> value);
+        partial void OnUserIDChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
+        [DataMemberAttribute()]
+        public Nullable<global::System.Int32> AnnotationID
+        {
+            get
+            {
+                return _AnnotationID;
+            }
+            set
+            {
+                OnAnnotationIDChanging(value);
+                ReportPropertyChanging("AnnotationID");
+                _AnnotationID = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("AnnotationID");
+                OnAnnotationIDChanged();
+            }
+        }
+        private Nullable<global::System.Int32> _AnnotationID;
+        partial void OnAnnotationIDChanging(Nullable<global::System.Int32> value);
+        partial void OnAnnotationIDChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
+        [DataMemberAttribute()]
+        public Nullable<global::System.Boolean> Vote
+        {
+            get
+            {
+                return _Vote;
+            }
+            set
+            {
+                OnVoteChanging(value);
+                ReportPropertyChanging("Vote");
+                _Vote = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("Vote");
+                OnVoteChanged();
+            }
+        }
+        private Nullable<global::System.Boolean> _Vote;
+        partial void OnVoteChanging(Nullable<global::System.Boolean> value);
+        partial void OnVoteChanged();
+
+        #endregion
+
+    
+        #region Navigation Properties
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [XmlIgnoreAttribute()]
+        [SoapIgnoreAttribute()]
+        [DataMemberAttribute()]
+        [EdmRelationshipNavigationPropertyAttribute("table1Model", "AnnotationID_FK", "Annotation")]
+        public Annotation Annotation
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<Annotation>("table1Model.AnnotationID_FK", "Annotation").Value;
+            }
+            set
+            {
+                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<Annotation>("table1Model.AnnotationID_FK", "Annotation").Value = value;
+            }
+        }
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [BrowsableAttribute(false)]
+        [DataMemberAttribute()]
+        public EntityReference<Annotation> AnnotationReference
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<Annotation>("table1Model.AnnotationID_FK", "Annotation");
+            }
+            set
+            {
+                if ((value != null))
+                {
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<Annotation>("table1Model.AnnotationID_FK", "Annotation", value);
+                }
+            }
+        }
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [XmlIgnoreAttribute()]
+        [SoapIgnoreAttribute()]
+        [DataMemberAttribute()]
+        [EdmRelationshipNavigationPropertyAttribute("table1Model", "UserID_FK", "User")]
+        public User User
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<User>("table1Model.UserID_FK", "User").Value;
+            }
+            set
+            {
+                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<User>("table1Model.UserID_FK", "User").Value = value;
+            }
+        }
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [BrowsableAttribute(false)]
+        [DataMemberAttribute()]
+        public EntityReference<User> UserReference
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<User>("table1Model.UserID_FK", "User");
+            }
+            set
+            {
+                if ((value != null))
+                {
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<User>("table1Model.UserID_FK", "User", value);
+                }
+            }
+        }
+
+        #endregion
+
     }
 
     #endregion

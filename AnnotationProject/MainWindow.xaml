@@ -113,21 +113,21 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel>
                                     <!--Vote Arrows:-->
-                                    <Grid Height="20" Width="10" Margin="0,0,0,0">
+                                    <Grid Height="20" Width="10" Margin="0,0,0,0" PreviewMouseDown="UpVote_PreviewMouseDown">
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="10" />
                                             <RowDefinition Height="10" />
                                         </Grid.RowDefinitions>
-                                        <Path Grid.Row="0" Data="M0,10 L5,0 L10,10Z" Stroke="Black" Fill="Black" StrokeThickness="1" HorizontalAlignment="Center" />
+                                        <Path Grid.Row="0" Name="upArrow" Data="M0,10 L5,0 L10,10Z" Stroke="Black" Fill="Black" StrokeThickness="1" HorizontalAlignment="Center" />
                                     </Grid>
                                     <TextBlock Margin="0,0,0,0"><Run Text="{Binding UpVotes}"/></TextBlock>
                                     <TextBlock Margin="0,0,0,0"><Run Text="{Binding DownVotes}"/></TextBlock>
-                                    <Grid Height="20" Width="10">
+                                    <Grid Height="20" Width="10" PreviewMouseDown="DownVote_PreviewMouseDown">
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="10" />
                                             <RowDefinition Height="10" />
                                         </Grid.RowDefinitions>
-                                        <Path Grid.Row="1" Data="M0,0 L5,10 L10,0Z" Stroke="Black" Fill="Black" StrokeThickness="1" HorizontalAlignment="Center" />
+                                        <Path Grid.Row="1" Name="downArrow" Data="M0,0 L5,10 L10,0Z" Stroke="Black" Fill="Black" StrokeThickness="1" HorizontalAlignment="Center" />
                                     </Grid>
                                     
                                 </StackPanel>

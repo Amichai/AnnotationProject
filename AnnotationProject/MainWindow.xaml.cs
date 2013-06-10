@@ -213,11 +213,20 @@ namespace AnnotationProject {
         private bool _ShowAll;
         public const string ShowAllPropertyName = "ShowAll";
 
+        private Annotation selectedAnnotation() {
+            var annotation = (this.AvailableAnnotations.SelectedItem as Annotation);
+            if (annotation == null) {
+                return null;
+            }
+            var id = annotation.ID;
+            return db.Annotations.Where(i => i.ID == id).Single();
+        }
+
         private void AvailableAnnotations_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-            var selectedAnnotation = ((sender as ListBox).SelectedItem as Annotation);
-            if (selectedAnnotation == null) { return; }
-            var startIdx = selectedAnnotation.StartIndex.Value;
-            var length = selectedAnnotation.SourceLength.Value;
+            var currentAnnotation = selectedAnnotation();
+            if (currentAnnotation == null) { return; }
+            var startIdx = currentAnnotation.StartIndex.Value;
+            var length = currentAnnotation.SourceLength.Value;
 
             ///TODO: this is where we set the local selection object
             this.body.Focus();
@@ -227,9 +236,10 @@ namespace AnnotationProject {
             var start = this.body.Document.ContentStart;
 
             this.body.Selection.Select(start.GetPositionAtOffset(startIdx, LogicalDirection.Forward), start.GetPositionAtOffset(startIdx + length, LogicalDirection.Forward));
-            this.selectedAnnotationRoot.DataContext = selectedAnnotation;
-            this.annotationText.Document = selectedAnnotation.Content.LoadFlowDocument();
-            
+            this.selectedAnnotationRoot.DataContext = currentAnnotation;
+            this.annotationText.Document = currentAnnotation.Content.LoadFlowDocument();
+
+            setArrowHighlights();
         }
 
         private void ClearAnnotations_Click(object sender, RoutedEventArgs e) {
@@ -265,6 +275,105 @@ namespace AnnotationProject {
                     ).ToList();
             }
             loadAnnotations(annotations);
+        }
+
+        private UserVote pastVote() {
+            var annotation = selectedAnnotation();
+            if (annotation == null) return null;
+            var currentAnnotationID = annotation.ID;
+            var allVotes = db.UserVotes.Where(i => i.UserID == this.currentUser.ID && i.AnnotationID == currentAnnotationID);
+            return allVotes.SingleOrDefault();
+        }
+
+        private int currentAnnotationID {
+            get {
+                return selectedAnnotation().ID;
+            }
+        }
+
+        private void UpVote_PreviewMouseDown(object sender, MouseButtonEventArgs e) {
+            var vote = pastVote();
+            var annotation = selectedAnnotation();
+            if (annotation == null) return;
+            if (vote == null) {
+                var newVote = new UserVote() {
+                    UserID = this.currentUser.ID,
+                    AnnotationID = currentAnnotationID,
+                    Vote = true
+                };
+                db.UserVotes.AddObject(newVote);
+                annotation.UpVotes++;
+                highlightUpArrow();
+            } else {
+                if (vote.Vote.Value) {
+                    annotation.UpVotes--;
+                    db.UserVotes.DeleteObject(vote);
+                    resetArrows();
+                } else {
+                    vote.Vote = true;
+                    annotation.DownVotes--;
+                    annotation.UpVotes++;
+                    highlightUpArrow();
+                }
+            }
+            db.SaveChanges();
+        }
+
+        private void setArrowHighlights() {
+            var vote = pastVote();
+            if (vote != null) {
+                if (vote.Vote.Value) {
+                    highlightUpArrow();
+                } else {
+                    highlightDownArrow();
+                }
+            } else {
+                resetArrows();
+            }
+        }
+
+        private void resetArrows() {
+            this.downArrow.Fill = Brushes.Black;
+            this.upArrow.Fill = Brushes.Black;
+        }
+
+        private void highlightDownArrow() {
+            this.downArrow.Fill = Brushes.Red;
+            this.upArrow.Fill = Brushes.Black;
+        }
+
+        private void highlightUpArrow() {
+            this.downArrow.Fill = Brushes.Black;
+            this.upArrow.Fill = Brushes.Red;
+        }
+
+        private void DownVote_PreviewMouseDown(object sender, MouseButtonEventArgs e) {
+            var pastVte = pastVote();
+            var annotation = selectedAnnotation();
+            if (annotation == null) return;
+            if (pastVte == null) {
+                ///New vote
+                var newVote = new UserVote() {
+                    UserID = this.currentUser.ID,
+                    AnnotationID = currentAnnotationID,
+                    Vote = false
+                };
+                annotation.DownVotes++;
+                highlightDownArrow();
+                db.UserVotes.AddObject(newVote);
+            } else {
+                if (!pastVte.Vote.Value) {
+                    annotation.DownVotes--;
+                    db.UserVotes.DeleteObject(pastVte);
+                    resetArrows();
+                } else {
+                    pastVte.Vote = false;
+                    annotation.UpVotes--;
+                    annotation.DownVotes++;
+                    highlightDownArrow();
+                }
+            }
+            db.SaveChanges();
         }
     }
 }
