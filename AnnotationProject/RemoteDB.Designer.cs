@@ -19,12 +19,12 @@ using System.Xml.Serialization;
 [assembly: EdmSchemaAttribute()]
 #region EDM Relationship Metadata
 
-[assembly: EdmRelationshipAttribute("table1Model", "AnnotationID", "Annotation", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(AnnotationProject.Annotation), "AnnotationTag", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(AnnotationProject.AnnotationTag), true)]
-[assembly: EdmRelationshipAttribute("table1Model", "AnnotationID_FK", "Annotation", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(AnnotationProject.Annotation), "UserVote", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(AnnotationProject.UserVote), true)]
-[assembly: EdmRelationshipAttribute("table1Model", "SourceText", "Text", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(AnnotationProject.Text), "Annotation", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(AnnotationProject.Annotation), true)]
 [assembly: EdmRelationshipAttribute("table1Model", "TagID", "Tag", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(AnnotationProject.Tag), "AnnotationTag", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(AnnotationProject.AnnotationTag), true)]
 [assembly: EdmRelationshipAttribute("table1Model", "detail_pk", "TextDetail", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(AnnotationProject.TextDetail), "Text", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(AnnotationProject.Text), true)]
 [assembly: EdmRelationshipAttribute("table1Model", "UserID_FK", "User", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(AnnotationProject.User), "UserVote", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(AnnotationProject.UserVote), true)]
+[assembly: EdmRelationshipAttribute("table1Model", "AnnotationID", "Annotation", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(AnnotationProject.Annotation), "AnnotationTag", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(AnnotationProject.AnnotationTag), true)]
+[assembly: EdmRelationshipAttribute("table1Model", "AnnotationID_FK", "Annotation", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(AnnotationProject.Annotation), "UserVote", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(AnnotationProject.UserVote), true)]
+[assembly: EdmRelationshipAttribute("table1Model", "SourceText", "Text", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(AnnotationProject.Text), "Annotation", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(AnnotationProject.Annotation), true)]
 
 #endregion
 
@@ -75,22 +75,6 @@ namespace AnnotationProject
         #endregion
     
         #region ObjectSet Properties
-    
-        /// <summary>
-        /// No Metadata Documentation available.
-        /// </summary>
-        public ObjectSet<Annotation> Annotations
-        {
-            get
-            {
-                if ((_Annotations == null))
-                {
-                    _Annotations = base.CreateObjectSet<Annotation>("Annotations");
-                }
-                return _Annotations;
-            }
-        }
-        private ObjectSet<Annotation> _Annotations;
     
         /// <summary>
         /// No Metadata Documentation available.
@@ -187,18 +171,26 @@ namespace AnnotationProject
             }
         }
         private ObjectSet<UserVote> _UserVotes;
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        public ObjectSet<Annotation> Annotations
+        {
+            get
+            {
+                if ((_Annotations == null))
+                {
+                    _Annotations = base.CreateObjectSet<Annotation>("Annotations");
+                }
+                return _Annotations;
+            }
+        }
+        private ObjectSet<Annotation> _Annotations;
 
         #endregion
 
         #region AddTo Methods
-    
-        /// <summary>
-        /// Deprecated Method for adding a new object to the Annotations EntitySet. Consider using the .Add method of the associated ObjectSet&lt;T&gt; property instead.
-        /// </summary>
-        public void AddToAnnotations(Annotation annotation)
-        {
-            base.AddObject("Annotations", annotation);
-        }
     
         /// <summary>
         /// Deprecated Method for adding a new object to the AnnotationTags EntitySet. Consider using the .Add method of the associated ObjectSet&lt;T&gt; property instead.
@@ -246,6 +238,14 @@ namespace AnnotationProject
         public void AddToUserVotes(UserVote userVote)
         {
             base.AddObject("UserVotes", userVote);
+        }
+    
+        /// <summary>
+        /// Deprecated Method for adding a new object to the Annotations EntitySet. Consider using the .Add method of the associated ObjectSet&lt;T&gt; property instead.
+        /// </summary>
+        public void AddToAnnotations(Annotation annotation)
+        {
+            base.AddObject("Annotations", annotation);
         }
 
         #endregion
@@ -479,6 +479,30 @@ namespace AnnotationProject
         private global::System.String _Content;
         partial void OnContentChanging(global::System.String value);
         partial void OnContentChanged();
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
+        [DataMemberAttribute()]
+        public global::System.String HighlightedSourceText
+        {
+            get
+            {
+                return _HighlightedSourceText;
+            }
+            set
+            {
+                OnHighlightedSourceTextChanging(value);
+                ReportPropertyChanging("HighlightedSourceText");
+                _HighlightedSourceText = StructuralObject.SetValidValue(value, true);
+                ReportPropertyChanged("HighlightedSourceText");
+                OnHighlightedSourceTextChanged();
+            }
+        }
+        private global::System.String _HighlightedSourceText;
+        partial void OnHighlightedSourceTextChanging(global::System.String value);
+        partial void OnHighlightedSourceTextChanged();
 
         #endregion
 
@@ -682,44 +706,6 @@ namespace AnnotationProject
         [XmlIgnoreAttribute()]
         [SoapIgnoreAttribute()]
         [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("table1Model", "AnnotationID", "Annotation")]
-        public Annotation Annotation
-        {
-            get
-            {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<Annotation>("table1Model.AnnotationID", "Annotation").Value;
-            }
-            set
-            {
-                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<Annotation>("table1Model.AnnotationID", "Annotation").Value = value;
-            }
-        }
-        /// <summary>
-        /// No Metadata Documentation available.
-        /// </summary>
-        [BrowsableAttribute(false)]
-        [DataMemberAttribute()]
-        public EntityReference<Annotation> AnnotationReference
-        {
-            get
-            {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<Annotation>("table1Model.AnnotationID", "Annotation");
-            }
-            set
-            {
-                if ((value != null))
-                {
-                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<Annotation>("table1Model.AnnotationID", "Annotation", value);
-                }
-            }
-        }
-    
-        /// <summary>
-        /// No Metadata Documentation available.
-        /// </summary>
-        [XmlIgnoreAttribute()]
-        [SoapIgnoreAttribute()]
-        [DataMemberAttribute()]
         [EdmRelationshipNavigationPropertyAttribute("table1Model", "TagID", "Tag")]
         public Tag Tag
         {
@@ -748,6 +734,44 @@ namespace AnnotationProject
                 if ((value != null))
                 {
                     ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<Tag>("table1Model.TagID", "Tag", value);
+                }
+            }
+        }
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [XmlIgnoreAttribute()]
+        [SoapIgnoreAttribute()]
+        [DataMemberAttribute()]
+        [EdmRelationshipNavigationPropertyAttribute("table1Model", "AnnotationID", "Annotation")]
+        public Annotation Annotation
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<Annotation>("table1Model.AnnotationID", "Annotation").Value;
+            }
+            set
+            {
+                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<Annotation>("table1Model.AnnotationID", "Annotation").Value = value;
+            }
+        }
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [BrowsableAttribute(false)]
+        [DataMemberAttribute()]
+        public EntityReference<Annotation> AnnotationReference
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<Annotation>("table1Model.AnnotationID", "Annotation");
+            }
+            set
+            {
+                if ((value != null))
+                {
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<Annotation>("table1Model.AnnotationID", "Annotation", value);
                 }
             }
         }
@@ -974,28 +998,6 @@ namespace AnnotationProject
         [XmlIgnoreAttribute()]
         [SoapIgnoreAttribute()]
         [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("table1Model", "SourceText", "Annotation")]
-        public EntityCollection<Annotation> Annotations
-        {
-            get
-            {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<Annotation>("table1Model.SourceText", "Annotation");
-            }
-            set
-            {
-                if ((value != null))
-                {
-                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<Annotation>("table1Model.SourceText", "Annotation", value);
-                }
-            }
-        }
-    
-        /// <summary>
-        /// No Metadata Documentation available.
-        /// </summary>
-        [XmlIgnoreAttribute()]
-        [SoapIgnoreAttribute()]
-        [DataMemberAttribute()]
         [EdmRelationshipNavigationPropertyAttribute("table1Model", "detail_pk", "TextDetail")]
         public TextDetail TextDetail
         {
@@ -1024,6 +1026,28 @@ namespace AnnotationProject
                 if ((value != null))
                 {
                     ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<TextDetail>("table1Model.detail_pk", "TextDetail", value);
+                }
+            }
+        }
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [XmlIgnoreAttribute()]
+        [SoapIgnoreAttribute()]
+        [DataMemberAttribute()]
+        [EdmRelationshipNavigationPropertyAttribute("table1Model", "SourceText", "Annotation")]
+        public EntityCollection<Annotation> Annotations
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<Annotation>("table1Model.SourceText", "Annotation");
+            }
+            set
+            {
+                if ((value != null))
+                {
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<Annotation>("table1Model.SourceText", "Annotation", value);
                 }
             }
         }
@@ -1501,44 +1525,6 @@ namespace AnnotationProject
         [XmlIgnoreAttribute()]
         [SoapIgnoreAttribute()]
         [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("table1Model", "AnnotationID_FK", "Annotation")]
-        public Annotation Annotation
-        {
-            get
-            {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<Annotation>("table1Model.AnnotationID_FK", "Annotation").Value;
-            }
-            set
-            {
-                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<Annotation>("table1Model.AnnotationID_FK", "Annotation").Value = value;
-            }
-        }
-        /// <summary>
-        /// No Metadata Documentation available.
-        /// </summary>
-        [BrowsableAttribute(false)]
-        [DataMemberAttribute()]
-        public EntityReference<Annotation> AnnotationReference
-        {
-            get
-            {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<Annotation>("table1Model.AnnotationID_FK", "Annotation");
-            }
-            set
-            {
-                if ((value != null))
-                {
-                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<Annotation>("table1Model.AnnotationID_FK", "Annotation", value);
-                }
-            }
-        }
-    
-        /// <summary>
-        /// No Metadata Documentation available.
-        /// </summary>
-        [XmlIgnoreAttribute()]
-        [SoapIgnoreAttribute()]
-        [DataMemberAttribute()]
         [EdmRelationshipNavigationPropertyAttribute("table1Model", "UserID_FK", "User")]
         public User User
         {
@@ -1567,6 +1553,44 @@ namespace AnnotationProject
                 if ((value != null))
                 {
                     ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<User>("table1Model.UserID_FK", "User", value);
+                }
+            }
+        }
+    
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [XmlIgnoreAttribute()]
+        [SoapIgnoreAttribute()]
+        [DataMemberAttribute()]
+        [EdmRelationshipNavigationPropertyAttribute("table1Model", "AnnotationID_FK", "Annotation")]
+        public Annotation Annotation
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<Annotation>("table1Model.AnnotationID_FK", "Annotation").Value;
+            }
+            set
+            {
+                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<Annotation>("table1Model.AnnotationID_FK", "Annotation").Value = value;
+            }
+        }
+        /// <summary>
+        /// No Metadata Documentation available.
+        /// </summary>
+        [BrowsableAttribute(false)]
+        [DataMemberAttribute()]
+        public EntityReference<Annotation> AnnotationReference
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<Annotation>("table1Model.AnnotationID_FK", "Annotation");
+            }
+            set
+            {
+                if ((value != null))
+                {
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<Annotation>("table1Model.AnnotationID_FK", "Annotation", value);
                 }
             }
         }

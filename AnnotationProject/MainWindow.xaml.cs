@@ -104,8 +104,10 @@ namespace AnnotationProject {
                 SourceText = currentText.ID,
                 Content = annotationAndTags.Annotation,
                 Author = currentUser.ID,
-                UpVotes  =0,
-                 DownVotes =0
+                UpVotes = 0,
+                DownVotes = 0,
+                HighlightedSourceText = string.Concat(this.body.Selection.Text.Take(100))
+
             };
             db.Annotations.AddObject(annotation);
             db.SaveChanges();
@@ -235,7 +237,15 @@ namespace AnnotationProject {
             this.Selection.CharLength = length;
             var start = this.body.Document.ContentStart;
 
-            this.body.Selection.Select(start.GetPositionAtOffset(startIdx, LogicalDirection.Forward), start.GetPositionAtOffset(startIdx + length, LogicalDirection.Forward));
+            int jumpTo;
+            if (currentAnnotation.AnnotationTags.Where(i => i.Tag.Name == "link").Count() > 0
+                && int.TryParse(currentAnnotation.Content.GetFlowDocumentText(), out jumpTo)) {
+                this.body.Selection.Select(start.GetPositionAtOffset(jumpTo, LogicalDirection.Forward), start.GetPositionAtOffset(jumpTo, LogicalDirection.Forward));
+            } else {
+                //We didn't click a hyperlink
+                this.body.Selection.Select(start.GetPositionAtOffset(startIdx, LogicalDirection.Forward), start.GetPositionAtOffset(startIdx + length, LogicalDirection.Forward));
+            }
+
             this.selectedAnnotationRoot.DataContext = currentAnnotation;
             this.annotationText.Document = currentAnnotation.Content.LoadFlowDocument();
 

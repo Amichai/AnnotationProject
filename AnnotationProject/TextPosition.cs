@@ -53,7 +53,5 @@ namespace AnnotationProject {
                 PropertyChanged(this, new PropertyChangedEventArgs(name));
             }
         }
-
-        
     }
 }
