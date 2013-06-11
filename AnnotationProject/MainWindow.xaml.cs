@@ -43,9 +43,6 @@ namespace AnnotationProject {
             this.ShowAll = true;
             this.currentUser = db.Users.First();
 
-            string source = @"C:\Users\Amichai\Dropbox\Share Folder\Literature\books\victor hugo\les miserable.txt";
-            string text = string.Concat(System.IO.File.ReadAllText(source).Take(100000));
-            
             this.currentTextDetail = db.TextDetails.Where(i => i.Title == "Les Miserables").Single();
             this.currentText = db.Texts.Where(i => i.ID == 1).Single();
 
@@ -233,7 +230,7 @@ namespace AnnotationProject {
             if (currentAnnotation == null) { return; }
             var startIdx = currentAnnotation.StartIndex.Value;
             var length = currentAnnotation.SourceLength.Value;
-
+            if (selectedTextControl == null) return;
             ///TODO: this is where we set the local selection object
             selectedTextControl.body.Focus();
             //this.body.Focus();
@@ -430,8 +427,8 @@ namespace AnnotationProject {
             StackPanel sp = sender as StackPanel;
             var textDetail = sp.Tag as TextDetail;
             LayoutDocument layoutDoc = new LayoutDocument();
-            layoutDoc.FloatingWidth = 50;
-            layoutDoc.FloatingLeft = 50;
+            layoutDoc.FloatingWidth = 500;
+            layoutDoc.FloatingLeft = 500;
             layoutDoc.CanFloat = true;
             layoutDoc.CanClose = true;
             layoutDoc.Title = textDetail.Title;
