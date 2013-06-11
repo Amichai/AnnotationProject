@@ -16,6 +16,9 @@ using System.IO;
 using System.Windows.Markup;
 using System.Xml;
 using System.Threading;
+using Microsoft.Win32;
+using AvalonDock.Layout;
+using AnnotationProject.Controls;
 
 namespace AnnotationProject {
     /// <summary>
@@ -23,6 +26,14 @@ namespace AnnotationProject {
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged {
         public MainWindow() {
+            /// TODO:
+            /// Every annotation needs a timestam
+            /// Also, we will add an edits table for handling diffs and revisions
+            /// Edits are also timestamped
+            /// By comparing timestamps we can preserve annotation indexing
+
+
+
             db = DataUtil.GetDataContext();
             ///Todo: 
             ///Add a library of fundamental texts
@@ -47,6 +58,8 @@ namespace AnnotationProject {
                 db.SaveChanges();
             }
             loadAnnotations();
+
+            this.allTexts.ItemsSource = db.Texts.Select(i => i.TextDetail);
         }
 
         private void setText(string text) {
@@ -106,7 +119,8 @@ namespace AnnotationProject {
                 Author = currentUser.ID,
                 UpVotes = 0,
                 DownVotes = 0,
-                HighlightedSourceText = string.Concat(this.body.Selection.Text.Take(100))
+                HighlightedSourceText = string.Concat(this.body.Selection.Text.Take(100)),
+                Timestamp = DateTime.Now
 
             };
             db.Annotations.AddObject(annotation);
@@ -236,6 +250,8 @@ namespace AnnotationProject {
             this.Selection.CharIndex = startIdx;
             this.Selection.CharLength = length;
             var start = this.body.Document.ContentStart;
+
+            var selectedTextControl = (this.textRoot.SelectedContent.Content as TextControl);
 
             int jumpTo;
             if (currentAnnotation.AnnotationTags.Where(i => i.Tag.Name == "link").Count() > 0
@@ -384,6 +400,69 @@ namespace AnnotationProject {
                 }
             }
             db.SaveChanges();
+        }
+
+        private void Browse_Click(object sender, RoutedEventArgs e) {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.DefaultExt = "*.txt";
+            ofd.Multiselect = false;
+            ofd.Filter = "Text|*.txt";
+            ofd.ShowDialog();
+            this.filepath.Text = ofd.FileName;
+        }
+
+        private void Upload_Click(object sender, RoutedEventArgs e) {
+            var title = this.fileTitle.Text;
+            var author = this.fileAuthor.Text;
+            var tags = this.tags.Text;
+            var filepath = this.filepath.Text;
+            if (title == "" || author == "" || filepath == "") {
+                return;
+            }
+            var textDetail = new TextDetail() {
+            Author = author,
+            Title = title, 
+            TextSource = filepath,
+            };
+            db.TextDetails.AddObject(textDetail);
+            db.SaveChanges();
+            var newText = new Text() {
+                Details = textDetail.ID,
+                Content = string.Concat(System.IO.File.ReadAllText(filepath).Take(100000))
+            };
+            db.Texts.AddObject(newText);
+            db.SaveChanges();
+            this.allTexts.ItemsSource = null;
+            this.allTexts.ItemsSource = db.Texts.Select(i => i.TextDetail);
+        }
+
+        private void OpenText_PreviewMouseDown(object sender, MouseButtonEventArgs e) {
+            StackPanel sp = sender as StackPanel;
+            var textDetail = sp.Tag as TextDetail;
+            LayoutDocument layoutDoc = new LayoutDocument();
+            layoutDoc.FloatingWidth = 50;
+            layoutDoc.FloatingLeft = 50;
+            layoutDoc.CanFloat = true;
+            layoutDoc.CanClose = true;
+            layoutDoc.Title = textDetail.Title;
+            var textControl = new TextControl(textDetail.Texts.First().Content);
+            textControl.selectionChanged += new EventHandler(textControl_selectionChanged);
+            layoutDoc.Content = textControl;
+            this.textRoot.Children.Insert(0, layoutDoc);
+        }
+
+        void textControl_selectionChanged(object sender, EventArgs e) {
+            var textControl = sender as TextControl;
+            var selection = textControl.Selection;
+            if (this.ShowAll) return;
+            var annotations = db.Annotations.Where(i => (i.StartIndex >= selection.CharIndex && i.StartIndex <= selection.EndIndex) ||
+                (i.StartIndex + i.SourceLength >= selection.CharIndex && i.StartIndex + i.SourceLength <= selection.EndIndex) ||
+                (i.StartIndex <= selection.CharIndex && i.StartIndex + i.SourceLength >= selection.EndIndex)).ToList();
+            if (annotations.Any()) {
+                loadAnnotations(annotations);
+            } else {
+                loadAnnotations();
+            }
         }
     }
 }

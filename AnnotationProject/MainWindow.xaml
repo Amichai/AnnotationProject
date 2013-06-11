@@ -1,9 +1,10 @@
 ﻿<Window x:Class="AnnotationProject.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:ad="http://avalondock.codeplex.com"        
+        xmlns:ad="http://avalondock.codeplex.com"
         xmlns:rtb="clr-namespace:RichTextBoxToolBar;assembly=RichTextBoxToolBar"
         xmlns:conv="clr-namespace:AnnotationProject.Converters"
+        xmlns:local="clr-namespace:AnnotationProject.Controls"
         DataContext="{Binding RelativeSource={RelativeSource Self}}"
         Title="MainWindow" Height="850" Width="725">
     <Window.Resources>
@@ -58,7 +59,6 @@
                                 <Grid Grid.Row="0">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
                                     <TextBox HorizontalAlignment="Stretch" 
@@ -144,7 +144,70 @@
                 <ad:LayoutDocumentPaneGroup 
                         DockWidth="500"
                         >
-                    <ad:LayoutDocumentPane DockWidth="100" >
+                    <ad:LayoutDocumentPane DockWidth="100" x:Name="textRoot">
+                        <ad:LayoutDocument x:Name="TextManager" 
+                                           FloatingWidth="50" 
+                                           FloatingLeft="50"
+                                           CanFloat="False" 
+                                           CanClose="False"
+                                           Title="Text Manager" >
+                            <StackPanel>
+                                <GroupBox Margin="3" Padding="4">
+                                    <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Margin="5">Filepath:</TextBlock>
+                                    <TextBox Grid.Column="1" Margin="5" Name="filepath"></TextBox>
+                                    <Button Grid.Column="2" Margin="2" Padding="3" Click="Browse_Click">Browse</Button>
+                                </Grid>
+                                
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Margin="5" Grid.Row="0">Title :</TextBlock>
+                                    <TextBox Grid.Column="1" Margin="5" Grid.Row="0" Name="fileTitle"></TextBox>
+                                    <TextBlock Margin="5" Grid.Row="1">Author:</TextBlock>
+                                    <TextBox Grid.Column="1" Margin="5" Grid.Row="1" Name="fileAuthor"></TextBox>
+                                    <TextBlock Margin="5" Grid.Row="2">Tags:</TextBlock>
+                                    <TextBox Grid.Column="1" Margin="5" Grid.Row="2" Name="fileTags"></TextBox>
+                                </Grid>
+                                
+
+                                <Button Margin="8" Height="30" HorizontalAlignment="Center" Width="150" Click="Upload_Click">Upload</Button>
+                                    </StackPanel>
+                                </GroupBox>
+                                <Grid Margin="5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Grid.Column="0" Margin="5"></TextBox>
+                                    <Button Margin="5" Grid.Column="1">Filter</Button>
+                                </Grid>
+                                <ItemsControl Name="allTexts">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" Background="White" Margin="5" PreviewMouseDown="OpenText_PreviewMouseDown" Tag="{Binding}">
+                                                <TextBlock Text="{Binding Title}" FontStyle="Italic" Margin="3" Foreground="Blue"/>
+                                                <TextBlock Text=", " FontStyle="Italic" Foreground="Blue" Margin="0,3,0,0"></TextBlock>
+                                                <TextBlock Text="{Binding Author}"  Margin="3" Foreground="Blue"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </ad:LayoutDocument>
                         <ad:LayoutDocument x:Name="Text" 
                                            FloatingWidth="50" 
                                            FloatingLeft="50"
@@ -172,6 +235,7 @@
                                 </ScrollViewer>
                             </Grid>
                         </ad:LayoutDocument>
+
                         <ad:LayoutDocument x:Name="Dev" 
                                            FloatingWidth="50" 
                                            FloatingLeft="50"

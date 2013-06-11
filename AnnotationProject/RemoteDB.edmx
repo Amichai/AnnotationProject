@@ -51,6 +51,7 @@
           <Property Name="DownVotes" Type="int" Nullable="false" />
           <Property Name="Content" Type="text" />
           <Property Name="HighlightedSourceText" Type="varchar" MaxLength="100" />
+          <Property Name="Timestamp" Type="datetime" />
         </EntityType>
         <EntityType Name="AnnotationTags">
           <Key>
@@ -211,7 +212,7 @@
             <End Role="Text" EntitySet="Texts" />
             <End Role="Annotation" EntitySet="Annotations" />
           </AssociationSet>
-        </EntityContainer>
+          </EntityContainer>
         <EntityType Name="AnnotationTag">
           <Key>
             <PropertyRef Name="ID" />
@@ -321,6 +322,7 @@
           <Property Type="Int32" Name="DownVotes" Nullable="false" />
           <Property Type="String" Name="Content" MaxLength="65535" FixedLength="false" Unicode="false" />
           <Property Type="String" Name="HighlightedSourceText" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Type="DateTime" Name="Timestamp" />
           <NavigationProperty Name="AnnotationTags" Relationship="table1Model.AnnotationID" FromRole="Annotation" ToRole="AnnotationTag" />
           <NavigationProperty Name="UserVotes" Relationship="table1Model.AnnotationID_FK" FromRole="Annotation" ToRole="UserVote" />
           <NavigationProperty Name="Text" Relationship="table1Model.SourceText" FromRole="Annotation" ToRole="Text" />
@@ -427,6 +429,7 @@
           <EntitySetMapping Name="Annotations">
             <EntityTypeMapping TypeName="table1Model.Annotation">
               <MappingFragment StoreEntitySet="Annotation">
+                <ScalarProperty Name="Timestamp" ColumnName="Timestamp" />
                 <ScalarProperty Name="HighlightedSourceText" ColumnName="HighlightedSourceText" />
                 <ScalarProperty Name="Content" ColumnName="Content" />
                 <ScalarProperty Name="DownVotes" ColumnName="DownVotes" />
@@ -481,7 +484,7 @@
           <ConnectorPoint PointX="7.125" PointY="1.8362939453124998" />
           <ConnectorPoint PointX="7.5" PointY="1.8362939453124998" />
         </AssociationConnector>
-        <EntityTypeShape EntityType="table1Model.Annotation" Width="1.5" PointX="5.25" PointY="3.25" Height="3.3263964843750031" />
+        <EntityTypeShape EntityType="table1Model.Annotation" Width="1.5" PointX="5.25" PointY="3.125" Height="3.5186979166666674" />
         <AssociationConnector Association="table1Model.AnnotationID" >
           <ConnectorPoint PointX="6.75" PointY="4.8651432291666659" />
           <ConnectorPoint PointX="7.041666666666667" PointY="4.865143229166665" />
@@ -489,7 +492,7 @@
           <ConnectorPoint PointX="7.5" PointY="4.8651432291666659" />
         </AssociationConnector>
         <AssociationConnector Association="table1Model.AnnotationID_FK" >
-          <ConnectorPoint PointX="6" PointY="3.25" />
+          <ConnectorPoint PointX="6" PointY="3.125" />
           <ConnectorPoint PointX="6" PointY="2.4106934179687505" />
           <ConnectorPoint PointX="7.041666666666667" PointY="2.41069341796875" />
           <ConnectorPoint PointX="7.208333333333333" PointY="2.4106934179687505" />
@@ -499,7 +502,7 @@
           <ConnectorPoint PointX="4.5" PointY="4.8651432291666659" />
           <ConnectorPoint PointX="5.25" PointY="4.8651432291666659" />
         </AssociationConnector>
-      </Diagram>
+        </Diagram>
     </Diagrams>
   </Designer>
 </edmx:Edmx>

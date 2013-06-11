@@ -1,0 +1,29 @@
+﻿<UserControl x:Class="AnnotationProject.Controls.TextControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             DataContext="{Binding RelativeSource={RelativeSource Self}}"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <TextBlock Text="Start Index: " 
+                                           Grid.Row="0"
+                                           DataContext="{Binding Selection}" ><Run Text="{Binding CharIndex}"/><Run Text=" Length: "/><Run Text="{Binding CharLength}"/></TextBlock>
+        <ScrollViewer Grid.Row="1">
+            <StackPanel>
+                <RichTextBox Name="body" 
+                        IsReadOnlyCaretVisible="True"
+                        IsReadOnly="True"
+                        AutoWordSelection="True"
+                        LostFocus="body_LostFocus"
+                        SelectionChanged="body_SelectionChanged"
+                        ></RichTextBox>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>
