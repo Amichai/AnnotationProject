@@ -39,7 +39,6 @@ namespace AnnotationProject {
             ///Add a library of fundamental texts
             ///Filter annotations based on where you are in the text
             ///Introduce inter-text linking and the notion of chapter, paragraph, etc.
-            this.Selection = new TextPosition();
             InitializeComponent();
             this.ShowAll = true;
             this.currentUser = db.Users.First();
@@ -50,9 +49,6 @@ namespace AnnotationProject {
             this.currentTextDetail = db.TextDetails.Where(i => i.Title == "Les Miserables").Single();
             this.currentText = db.Texts.Where(i => i.ID == 1).Single();
 
-            setText(text);
-            this.Text.Title = this.currentTextDetail.Title;
-            //clearAllTexts();
             if (!db.Texts.Select(i => i.TextDetail.Title).Contains(currentTextDetail.Title)) {
                 db.Texts.AddObject(this.currentText);
                 db.SaveChanges();
@@ -60,12 +56,6 @@ namespace AnnotationProject {
             loadAnnotations();
 
             this.allTexts.ItemsSource = db.Texts.Select(i => i.TextDetail);
-        }
-
-        private void setText(string text) {
-            FlowDocument d = new FlowDocument();
-            d.Blocks.Add(new Paragraph(new Run(text)));
-            this.body.Document = d;
         }
 
         TextDetail currentTextDetail;
@@ -112,17 +102,18 @@ namespace AnnotationProject {
             var annotationAndTags = (annotationAndTags)state;
 
             Annotation annotation = new Annotation() {
-                StartIndex = this.Selection.CharIndex,
-                SourceLength = this.Selection.CharLength,
+                StartIndex = currentSelection.CharIndex,
+                SourceLength = currentSelection.CharLength,
                 SourceText = currentText.ID,
                 Content = annotationAndTags.Annotation,
                 Author = currentUser.ID,
                 UpVotes = 0,
                 DownVotes = 0,
-                HighlightedSourceText = string.Concat(this.body.Selection.Text.Take(100)),
+                HighlightedSourceText = string.Concat((this.textRoot.SelectedContent.Content as TextControl).body.Selection.Text.Take(100)),
                 Timestamp = DateTime.Now
-
             };
+
+            
             db.Annotations.AddObject(annotation);
             db.SaveChanges();
 
@@ -156,8 +147,16 @@ namespace AnnotationProject {
             public List<string> Tags { get; set; }
         }
 
+
+
+        private TextPosition currentSelection {
+            get {
+                return (this.textRoot.SelectedContent.Content as TextControl).Selection;
+            }
+        }
+
         private void Save_Click(object sender, RoutedEventArgs e) {
-            if (this.Selection.CharLength == 0) {
+            if (currentSelection.CharLength == 0) {
                 ///TODO: notify the user why this failed
                 return;
             }
@@ -170,18 +169,6 @@ namespace AnnotationProject {
             ThreadPool.QueueUserWorkItem(saveAnnotation, annotationAndTags);
         }
 
-        private TextPosition _selection;
-
-        public TextPosition Selection {
-            get { return _selection; }
-            set {
-                _selection = value;
-                OnPropertyChanged("Selection");
-            }
-        }
-
-
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         public void OnPropertyChanged(string name) {
@@ -192,16 +179,16 @@ namespace AnnotationProject {
 
         private void body_SelectionChanged(object sender, RoutedEventArgs e) {
             var tb = (sender as RichTextBox);
-            this.Selection.CharIndex = tb.Document.ContentStart.GetOffsetToPosition(tb.Selection.Start);
-            this.Selection.CharLength = tb.Document.ContentStart.GetOffsetToPosition(tb.Selection.End) - this.Selection.CharIndex;
+            currentSelection.CharIndex = tb.Document.ContentStart.GetOffsetToPosition(tb.Selection.Start);
+            currentSelection.CharLength = tb.Document.ContentStart.GetOffsetToPosition(tb.Selection.End) - currentSelection.CharIndex;
             int linenum;
             tb.Document.ContentStart.GetLineStartPosition(0, out linenum);
-            this.Selection.LineNumber = linenum;
+            currentSelection.LineNumber = linenum;
 
             if (this.ShowAll) return;
-            var annotations = db.Annotations.Where(i => (i.StartIndex >= this.Selection.CharIndex && i.StartIndex <= this.Selection.EndIndex) ||
-                (i.StartIndex + i.SourceLength >= this.Selection.CharIndex && i.StartIndex + i.SourceLength <= this.Selection.EndIndex) ||
-                (i.StartIndex <= this.Selection.CharIndex && i.StartIndex + i.SourceLength >= this.Selection.EndIndex)).ToList() ;
+            var annotations = db.Annotations.Where(i => (i.StartIndex >= currentSelection.CharIndex && i.StartIndex <= currentSelection.EndIndex) ||
+                (i.StartIndex + i.SourceLength >= currentSelection.CharIndex && i.StartIndex + i.SourceLength <= currentSelection.EndIndex) ||
+                (i.StartIndex <= currentSelection.CharIndex && i.StartIndex + i.SourceLength >= currentSelection.EndIndex)).ToList() ;
             if (annotations.Any()) {
                 loadAnnotations(annotations);
             } else {
@@ -239,27 +226,30 @@ namespace AnnotationProject {
         }
 
         private void AvailableAnnotations_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+            var selectedTextControl = (this.textRoot.SelectedContent.Content as TextControl);
+
+
             var currentAnnotation = selectedAnnotation();
             if (currentAnnotation == null) { return; }
             var startIdx = currentAnnotation.StartIndex.Value;
             var length = currentAnnotation.SourceLength.Value;
 
             ///TODO: this is where we set the local selection object
-            this.body.Focus();
-
-            this.Selection.CharIndex = startIdx;
-            this.Selection.CharLength = length;
-            var start = this.body.Document.ContentStart;
-
-            var selectedTextControl = (this.textRoot.SelectedContent.Content as TextControl);
-
+            selectedTextControl.body.Focus();
+            //this.body.Focus();
+            selectedTextControl.Selection.CharIndex = startIdx;
+            selectedTextControl.Selection.CharLength = length;
+            var start = selectedTextControl.body.Document.ContentStart;
             int jumpTo;
+            int textLength = new TextRange(start, selectedTextControl.body.Document.ContentEnd).Text.Count();
             if (currentAnnotation.AnnotationTags.Where(i => i.Tag.Name == "link").Count() > 0
-                && int.TryParse(currentAnnotation.Content.GetFlowDocumentText(), out jumpTo)) {
-                this.body.Selection.Select(start.GetPositionAtOffset(jumpTo, LogicalDirection.Forward), start.GetPositionAtOffset(jumpTo, LogicalDirection.Forward));
+                && int.TryParse(currentAnnotation.Content.GetFlowDocumentText(), out jumpTo) && jumpTo < textLength) {
+                        selectedTextControl.body.Selection.Select(
+                            start.GetPositionAtOffset(jumpTo, LogicalDirection.Forward), start.GetPositionAtOffset(jumpTo, LogicalDirection.Forward));
+                   
             } else {
                 //We didn't click a hyperlink
-                this.body.Selection.Select(start.GetPositionAtOffset(startIdx, LogicalDirection.Forward), start.GetPositionAtOffset(startIdx + length, LogicalDirection.Forward));
+                selectedTextControl.body.Selection.Select(start.GetPositionAtOffset(startIdx, LogicalDirection.Forward), start.GetPositionAtOffset(startIdx + length, LogicalDirection.Forward));
             }
 
             this.selectedAnnotationRoot.DataContext = currentAnnotation;
@@ -449,6 +439,7 @@ namespace AnnotationProject {
             textControl.selectionChanged += new EventHandler(textControl_selectionChanged);
             layoutDoc.Content = textControl;
             this.textRoot.Children.Insert(0, layoutDoc);
+            this.textRoot.Children[0].IsSelected = true;
         }
 
         void textControl_selectionChanged(object sender, EventArgs e) {

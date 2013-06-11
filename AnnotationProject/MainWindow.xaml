@@ -75,7 +75,7 @@
                                 <ListBox Name="AvailableAnnotations" Grid.Row="2" SelectionChanged="AvailableAnnotations_SelectionChanged">
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
-                                            <StackPanel Orientation="Vertical" Margin="5" Width="300">
+                                            <StackPanel Orientation="Vertical" Margin="5" Width="200">
                                                 <StackPanel Orientation="Horizontal">
                                                     <TextBlock Text="{Binding HighlightedSourceText}" FontStyle="Italic" />
                                                     <TextBlock Text="{Binding StartIndex}" Grid.Column="0" Margin="5,0,5,0"/>
@@ -208,34 +208,6 @@
                                 </ItemsControl>
                             </StackPanel>
                         </ad:LayoutDocument>
-                        <ad:LayoutDocument x:Name="Text" 
-                                           FloatingWidth="50" 
-                                           FloatingLeft="50"
-                                           CanFloat="True" 
-                                           CanClose="False"
-                                           Title="Text" >
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
-                                <TextBlock Text="Start Index: " 
-                                           Grid.Row="0"
-                                           DataContext="{Binding Selection}" ><Run Text="{Binding CharIndex}"/><Run Text=" Length: "/><Run Text="{Binding CharLength}"/></TextBlock>
-                                <ScrollViewer Grid.Row="1">
-                                    <StackPanel>
-                                        <RichTextBox Name="body" 
-                                                 IsReadOnlyCaretVisible="True"
-                                                 LostFocus="body_LostFocus"
-                                         SelectionChanged="body_SelectionChanged"
-                                           IsReadOnly="True"
-                                         AutoWordSelection="True"
-                                           ></RichTextBox>
-                                    </StackPanel>
-                                </ScrollViewer>
-                            </Grid>
-                        </ad:LayoutDocument>
-
                         <ad:LayoutDocument x:Name="Dev" 
                                            FloatingWidth="50" 
                                            FloatingLeft="50"
