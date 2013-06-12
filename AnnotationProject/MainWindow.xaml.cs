@@ -32,6 +32,8 @@ namespace AnnotationProject {
             /// Edits are also timestamped
             /// By comparing timestamps we can preserve annotation indexing
 
+           ///Show the number of annotations on the text selection page
+           ///Highlight the 
 
 
             db = DataUtil.GetDataContext();
@@ -60,7 +62,12 @@ namespace AnnotationProject {
         private void loadAnnotations() {
             if (this.AvailableAnnotations.Items.Count == db.Annotations.Count()) { return; }
             this.AvailableAnnotations.ItemsSource = null;
-            this.AvailableAnnotations.ItemsSource = db.Annotations.ToList();
+            //List<int> sourceTextIds = db.Texts.Where(i => this.openTexts.Contains(i.TextDetail.Title)).Select(i=> i.ID).ToList();
+            //this.AvailableAnnotations.ItemsSource = db.Annotations.Where(i => sourceTextIds.Contains(i.SourceText.Value));
+            var text = db.Texts.FirstOrDefault(i => i.TextDetail.Title == this.textRoot.SelectedContent.Title);
+            if (text == null) { return; }
+            var textId = text.ID;
+            this.AvailableAnnotations.ItemsSource = db.Annotations.Where(i => i.SourceText == textId);
         }
 
         private bool same(List<Annotation> a, List<Annotation> b) {
@@ -223,17 +230,20 @@ namespace AnnotationProject {
         }
 
         private void AvailableAnnotations_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-            var selectedTextControl = (this.textRoot.SelectedContent.Content as TextControl);
-
-
             var currentAnnotation = selectedAnnotation();
             if (currentAnnotation == null) { return; }
+            List<TextControl> allTextControls = new List<TextControl>();
+            foreach (var a in this.textRoot.Children) {
+                var asTextControl = a.Content as TextControl;
+                if (asTextControl == null) continue;
+                allTextControls.Add(asTextControl);
+            }
+            string inspectionTitle = db.Texts.First(i => i.ID == currentAnnotation.SourceText.Value).TextDetail.Title;
+            var selectedTextControl = allTextControls.First(i => i.Title == inspectionTitle);
             var startIdx = currentAnnotation.StartIndex.Value;
             var length = currentAnnotation.SourceLength.Value;
             if (selectedTextControl == null) return;
-            ///TODO: this is where we set the local selection object
             selectedTextControl.body.Focus();
-            //this.body.Focus();
             selectedTextControl.Selection.CharIndex = startIdx;
             selectedTextControl.Selection.CharLength = length;
             var start = selectedTextControl.body.Document.ContentStart;
@@ -423,6 +433,8 @@ namespace AnnotationProject {
             this.allTexts.ItemsSource = db.Texts.Select(i => i.TextDetail);
         }
 
+        List<string> openTexts = new List<string>();
+
         private void OpenText_PreviewMouseDown(object sender, MouseButtonEventArgs e) {
             StackPanel sp = sender as StackPanel;
             var textDetail = sp.Tag as TextDetail;
@@ -432,11 +444,27 @@ namespace AnnotationProject {
             layoutDoc.CanFloat = true;
             layoutDoc.CanClose = true;
             layoutDoc.Title = textDetail.Title;
-            var textControl = new TextControl(textDetail.Texts.First().Content);
+            var textControl = new TextControl(textDetail.Texts.First().Content, textDetail.Title);
+            openTexts.Add(textDetail.Title);
             textControl.selectionChanged += new EventHandler(textControl_selectionChanged);
             layoutDoc.Content = textControl;
+            layoutDoc.Closing += new EventHandler<CancelEventArgs>(layoutDoc_Closing);
+            layoutDoc.IsSelectedChanged += new EventHandler(layoutDoc_IsSelectedChanged);
             this.textRoot.Children.Insert(0, layoutDoc);
             this.textRoot.Children[0].IsSelected = true;
+            loadAnnotations();
+        }
+
+        void layoutDoc_IsSelectedChanged(object sender, EventArgs e) {
+            if((sender as LayoutDocument).IsSelected){
+                loadAnnotations();
+            }
+        }
+
+        void layoutDoc_Closing(object sender, CancelEventArgs e) {
+            var title = ((sender as LayoutDocument).Content as TextControl).Title;
+            openTexts.Remove(title);
+            loadAnnotations();
         }
 
         void textControl_selectionChanged(object sender, EventArgs e) {

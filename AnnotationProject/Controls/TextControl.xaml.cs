@@ -18,13 +18,16 @@ namespace AnnotationProject.Controls {
     /// Interaction logic for TextControl.xaml
     /// </summary>
     public partial class TextControl : UserControl, INotifyPropertyChanged {
-        public TextControl(string text) {
+        public TextControl(string text, string name) {
             FlowDocument d = new FlowDocument();
             d.Blocks.Add(new Paragraph(new Run(text)));
             InitializeComponent();
             this.body.Document = d;
             this.Selection = new TextPosition();
+            this.Title = name;
         }
+
+        public string Title { get; set; }
 
         private TextPosition _selection;
 
